@@ -1,0 +1,20 @@
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
+import { AppComponent } from './app.component';
+
+describe('AppComponent', () => {
+  it('renders the application landmarks', async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [provideRouter([])],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('header')).not.toBeNull();
+    expect(element.querySelector('main')).not.toBeNull();
+  });
+});
