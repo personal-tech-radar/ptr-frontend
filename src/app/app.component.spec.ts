@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 
@@ -7,7 +8,7 @@ describe('AppComponent', () => {
   it('renders the application landmarks', async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient()],
     }).compileComponents();
 
     const fixture = TestBed.createComponent(AppComponent);
@@ -15,6 +16,6 @@ describe('AppComponent', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('header')).not.toBeNull();
-    expect(element.querySelector('main')).not.toBeNull();
+    expect(element.querySelector('footer')).not.toBeNull();
   });
 });

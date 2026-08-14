@@ -1,0 +1,43 @@
+<article>
+  <a class="content" [routerLink]="['/signals', signal().articleId]">
+    <h3>{{ signal().title }}</h3>
+    <p class="source">{{ signal().sourceName }}</p>
+    <p class="summary">{{ signal().shortSummary }}</p>
+    <div class="metadata">
+      @if (signal().complexityLevel) {
+        <span>{{ signal().complexityLevel }}</span>
+      }
+      @if (signal().materialType) {
+        <span>{{ signal().materialType }}</span>
+      }
+    </div>
+  </a>
+  @if (actions()) {
+    <div class="actions" aria-label="Signal actions">
+      <button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().feedback === 'useful'"
+        (click)="feedback.emit('useful')"
+      >
+        {{ signal().feedback === 'useful' ? '[+]' : '[ ]' }} Useful
+      </button>
+      <button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().feedback === 'not_useful'"
+        (click)="feedback.emit('not_useful')"
+      >
+        {{ signal().feedback === 'not_useful' ? '[−]' : '[ ]' }} Not useful
+      </button>
+      <button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().saved"
+        (click)="save.emit()"
+      >
+        {{ signal().saved ? '[×]' : '[+]' }} Save
+      </button>
+    </div>
+  }
+</article>

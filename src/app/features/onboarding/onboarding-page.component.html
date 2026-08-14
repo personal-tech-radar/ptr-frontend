@@ -1,0 +1,75 @@
+<main class="page artwork-page">
+  <div class="container onboarding">
+    <header>
+      <p class="eyebrow">setup.config</p>
+      <h1 class="page-title">Tune your personal radar</h1>
+      <p class="prose">
+        Tell us what belongs on your screen. New terms are accepted and discovered by the backend
+        after you save.
+      </p>
+    </header>
+    <form class="panel" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="two">
+        <div class="field">
+          <label for="timezone">Timezone</label
+          ><input class="control" id="timezone" formControlName="timezone" />
+        </div>
+        <div class="field">
+          <label for="github">GitHub URL (optional)</label
+          ><input
+            class="control"
+            id="github"
+            formControlName="githubUrl"
+            placeholder="https://github.com/you"
+          />
+        </div>
+      </div>
+      <div class="field">
+        <label for="level">Experience level</label
+        ><select class="control" id="level" formControlName="level">
+          <option value="junior">Junior</option>
+          <option value="middle">Middle</option>
+          <option value="senior">Senior</option>
+        </select>
+      </div>
+      <fieldset>
+        <legend>Content streams</legend>
+        <div class="checks">
+          @for (stream of streams(); track stream.id) {
+            <label
+              ><input
+                type="checkbox"
+                [checked]="form.controls.contentStreamIds.value.includes(stream.id)"
+                (change)="toggleStream(stream.id)"
+              />
+              <span>{{ stream.name }}</span></label
+            >
+          }
+        </div>
+      </fieldset>
+      <app-taxonomy-selector
+        label="Technologies"
+        kind="technology"
+        [items]="technologyItems()"
+        [selected]="technologies()"
+        (selectedChange)="technologies.set($event)"
+        (searchQuery)="search('technology', $event)"
+      />
+      <app-taxonomy-selector
+        label="Interests"
+        kind="interest"
+        [items]="interestItems()"
+        [selected]="interests()"
+        (selectedChange)="interests.set($event)"
+        (searchQuery)="search('interest', $event)"
+      />
+      <p class="muted limit">Up to 5 technologies and 5 interests.</p>
+      @if (error()) {
+        <p class="status-error" role="alert">{{ error() }}</p>
+      }
+      <button class="btn btn--primary" type="submit" [disabled]="pending()">
+        {{ pending() ? 'Saving…' : 'Activate radar' }}
+      </button>
+    </form>
+  </div>
+</main>

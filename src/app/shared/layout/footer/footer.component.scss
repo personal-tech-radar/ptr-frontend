@@ -1,0 +1,32 @@
+:host {
+  position: relative;
+  z-index: 1;
+  display: block;
+}
+
+footer {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding-block: 3rem;
+  color: var(--ptr-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.rule {
+  inline-size: 100%;
+  border-block-start: 1px dashed var(--ptr-line);
+  margin-block-end: 1.5rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.875rem;
+}
+
+a {
+  text-decoration: none;
+}

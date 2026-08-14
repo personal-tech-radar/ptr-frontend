@@ -1,0 +1,97 @@
+<main class="page">
+  <div class="container profile">
+    <header>
+      <p class="eyebrow">user.settings</p>
+      <h1 class="page-title">Profile</h1>
+    </header>
+    <nav class="tabs" aria-label="Profile sections">
+      <button type="button" (click)="tab.set('profile')">Profile</button
+      ><button type="button" (click)="tab.set('password')">Password</button
+      ><button class="danger-link" type="button" (click)="tab.set('danger')">Danger Zone</button>
+    </nav>
+    @if (notice()) {
+      <p class="status-success" aria-live="polite">{{ notice() }}</p>
+    }
+    @if (tab() === 'profile') {
+      <form class="panel" [formGroup]="profile" (ngSubmit)="save()">
+        <div class="field">
+          <label for="name">Display name</label
+          ><input class="control" id="name" formControlName="displayName" />
+        </div>
+        <div class="field">
+          <label for="github">GitHub URL</label
+          ><input class="control" id="github" formControlName="githubUrl" />
+        </div>
+        <div class="field">
+          <label for="timezone">Timezone</label
+          ><input class="control" id="timezone" formControlName="timezone" />
+        </div>
+        <div class="field">
+          <label for="level">Experience</label
+          ><select class="control" id="level" formControlName="level">
+            <option value="junior">Junior</option>
+            <option value="middle">Middle</option>
+            <option value="senior">Senior</option>
+          </select>
+        </div>
+        <label class="toggle"
+          ><input type="checkbox" formControlName="dailyDigestEnabled" /> Daily digest</label
+        ><label class="toggle"
+          ><input type="checkbox" formControlName="weeklyDigestEnabled" /> Weekly digest</label
+        >
+        <fieldset>
+          <legend>Content streams</legend>
+          <div class="stream-grid">
+            @for (stream of streams(); track stream.id) {
+              <label
+                ><input
+                  type="checkbox"
+                  [checked]="selectedStreamIds().includes(stream.id)"
+                  (change)="toggleStream(stream.id)"
+                />
+                {{ stream.name }}</label
+              >
+            }
+          </div>
+        </fieldset>
+        <app-taxonomy-selector
+          label="Technologies"
+          kind="technology"
+          [items]="technologyItems()"
+          [selected]="technologies()"
+          (selectedChange)="technologies.set($event)"
+          (searchQuery)="search('technology', $event)"
+        />
+        <app-taxonomy-selector
+          label="Interests"
+          kind="interest"
+          [items]="interestItems()"
+          [selected]="interests()"
+          (selectedChange)="interests.set($event)"
+          (searchQuery)="search('interest', $event)"
+        />
+        <button class="btn btn--primary" [disabled]="pending()">Save profile</button>
+      </form>
+    } @else if (tab() === 'password') {
+      <form class="panel" [formGroup]="password" (ngSubmit)="changePassword()">
+        <div class="field">
+          <label for="current">Current password</label
+          ><input class="control" id="current" type="password" formControlName="currentPassword" />
+        </div>
+        <div class="field">
+          <label for="new">New password</label
+          ><input class="control" id="new" type="password" formControlName="newPassword" />
+        </div>
+        <button class="btn btn--primary" [disabled]="pending()">Change password</button>
+      </form>
+    } @else {
+      <section class="panel danger">
+        <h2>Delete account</h2>
+        <p>This permanently removes your profile and preferences. This action cannot be undone.</p>
+        <button class="btn btn--danger" type="button" (click)="deleteAccount()">
+          Delete account
+        </button>
+      </section>
+    }
+  </div>
+</main>

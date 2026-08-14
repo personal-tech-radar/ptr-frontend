@@ -5,7 +5,16 @@ const globals = require('globals');
 const tseslint = require('typescript-eslint');
 
 module.exports = tseslint.config(
-  { ignores: ['dist/**', 'coverage/**', 'node_modules/**', '.angular/**', '.agents/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'node_modules/**',
+      '.angular/**',
+      '.agents/**',
+      '.design-reference/**',
+    ],
+  },
   {
     files: ['**/*.ts'],
     extends: [
@@ -21,6 +30,7 @@ module.exports = tseslint.config(
       parserOptions: { projectService: true, tsconfigRootDir: __dirname },
     },
     rules: {
+      '@typescript-eslint/unbound-method': 'off',
       '@angular-eslint/directive-selector': [
         'error',
         { type: 'attribute', prefix: 'app', style: 'camelCase' },

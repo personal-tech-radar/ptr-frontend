@@ -1,0 +1,64 @@
+<main class="page">
+  <article class="container signal-detail">
+    <header>
+      <p class="eyebrow">Public signal / {{ sourceName() }}</p>
+      <h1>{{ signal.title }}</h1>
+      <p class="meta">
+        {{ signal.publishedAt ? signal.publishedAt.slice(0, 10) : 'Recently published' }} ·
+        {{ signal.complexity ?? 'All levels' }}
+      </p>
+    </header>
+    <section class="summary panel">
+      <p class="eyebrow">Analysis.summary</p>
+      <p>
+        {{
+          signal.summary ||
+            'This signal has been selected for its relevance to working software teams.'
+        }}
+      </p>
+      <div class="chip-list">
+        @for (item of signal.technologies; track item.id) {
+          <span class="chip">{{ item.name }}</span>
+        }
+        @for (item of signal.interests; track item.id) {
+          <span class="chip interest">{{ item.name }}</span>
+        }
+      </div>
+    </section>
+    @if (auth.authenticated()) {
+      <div class="detail-actions" aria-label="Signal actions">
+        <button
+          type="button"
+          [disabled]="pending()"
+          [attr.aria-pressed]="feedback() === 'useful'"
+          (click)="setFeedback('useful')"
+        >
+          {{ feedback() === 'useful' ? '[+]' : '[ ]' }} Useful
+        </button>
+        <button
+          type="button"
+          [disabled]="pending()"
+          [attr.aria-pressed]="feedback() === 'not_useful'"
+          (click)="setFeedback('not_useful')"
+        >
+          {{ feedback() === 'not_useful' ? '[−]' : '[ ]' }} Not useful
+        </button>
+        <button
+          type="button"
+          [disabled]="pending()"
+          [attr.aria-pressed]="saved()"
+          (click)="toggleSave()"
+        >
+          {{ saved() ? '[×]' : '[+]' }} Save
+        </button>
+      </div>
+    }
+    <a
+      class="double-panel original"
+      [href]="signal.publicRedirectUrl || signal.originalUrl"
+      target="_blank"
+      rel="noopener noreferrer"
+      ><span>Open original content</span><span aria-hidden="true">↗</span></a
+    >
+  </article>
+</main>

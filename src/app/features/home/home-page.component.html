@@ -1,0 +1,59 @@
+<main>
+  <section class="hero container">
+    <div class="double-panel">
+      <p class="eyebrow">Personal Tech Radar</p>
+      <h1>Stay current without living in your feed.</h1>
+      <p>
+        High-signal engineering reading, selected around the tools you use and the things you want
+        to learn.
+      </p>
+      <a class="btn btn--primary" [routerLink]="auth.authenticated() ? '/radar' : '/register'">{{
+        auth.authenticated() ? 'Open my radar' : 'Build my radar'
+      }}</a>
+    </div>
+  </section>
+  <section class="container feed-section">
+    <header class="section-head">
+      <div>
+        <p class="eyebrow">Public radar / live preview</p>
+        <h2>Signals worth your attention</h2>
+      </div>
+      <div class="filter-placeholder" aria-label="Preview filters">
+        <span>technology</span><span>interest</span><span>stream</span>
+      </div>
+    </header>
+    <app-date-navigation [labels]="['Today', 'Yesterday', 'Earlier']" [disabled]="true" />
+    @if (loading()) {
+      <app-feed-skeleton />
+    } @else if (error()) {
+      <div class="panel empty">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (!signals().length) {
+      <div class="panel empty"><p>No public signals match this view yet.</p></div>
+    } @else {
+      <div class="signal-grid">
+        @for (item of signals(); track item.articleId) {
+          <app-signal-card [signal]="item" />
+        }
+      </div>
+    }
+  </section>
+  <section class="cta">
+    <div class="container">
+      <p class="eyebrow">$ subscribe --personal</p>
+      <h2>Let the useful parts find you.</h2>
+      <p>Set your stack and interests. Your radar evolves with you.</p>
+      <form (submit)="$event.preventDefault(); subscribe(emailInput.value)">
+        <label class="sr-only" for="cta-email">Email address</label
+        ><input
+          #emailInput
+          class="control"
+          id="cta-email"
+          type="email"
+          placeholder="you@example.com"
+        /><button class="btn btn--primary" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </section>
+</main>

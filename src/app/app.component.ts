@@ -1,11 +1,23 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+import { FooterComponent } from './shared/layout/footer/footer.component';
+import { HeaderComponent } from './shared/layout/header/header.component';
+import { AuthSessionService } from './core/auth/auth-session.service';
+import { RouteSeoService } from './core/seo/route-seo.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterOutlet],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  private readonly session = inject(AuthSessionService);
+  private readonly seo = inject(RouteSeoService);
+  constructor() {
+    this.seo.start();
+    afterNextRender(() => this.session.restore().subscribe());
+  }
+}

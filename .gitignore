@@ -16,6 +16,8 @@ yarn-error.log*
 /.env
 /.local-context/
 /reports/
+/.design-reference/
+/Personal Tech Radar Design.zip
 
 # IDEs and operating systems
 .idea/

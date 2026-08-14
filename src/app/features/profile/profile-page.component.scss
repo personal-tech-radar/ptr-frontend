@@ -1,0 +1,53 @@
+.profile {
+  max-width: 48rem;
+}
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-block: 2rem 1rem;
+  border-bottom: 1px solid var(--ptr-line);
+}
+.tabs button {
+  border: 0;
+  background: none;
+  padding: 0.8rem;
+  color: var(--ptr-blue);
+  cursor: pointer;
+}
+.tabs .danger-link {
+  color: var(--ptr-danger);
+}
+.toggle {
+  display: block;
+  margin-block: 1rem;
+  font-size: 0.8rem;
+}
+fieldset {
+  border: 0;
+  padding: 1rem 0;
+  margin: 1rem 0;
+}
+legend {
+  color: var(--ptr-muted);
+  font-size: 0.75rem;
+}
+.stream-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+}
+.panel .btn {
+  margin-top: 1rem;
+}
+.danger {
+  border-color: var(--ptr-danger);
+}
+.danger h2 {
+  color: var(--ptr-danger);
+  font-size: 1rem;
+}
+.danger p {
+  color: var(--ptr-muted);
+  line-height: 1.7;
+}

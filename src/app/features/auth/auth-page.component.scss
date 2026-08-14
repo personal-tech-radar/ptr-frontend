@@ -1,0 +1,17 @@
+.auth-panel {
+  min-block-size: 20rem;
+}
+.auth-panel form {
+  display: grid;
+}
+.auth-panel .btn--primary {
+  inline-size: 100%;
+  margin-block-start: 0.75rem;
+}
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-start: 1.5rem;
+  font-size: 0.75rem;
+}

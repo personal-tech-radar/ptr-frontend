@@ -1,0 +1,48 @@
+.selector {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  margin-block-end: 1.25rem;
+}
+.trigger {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+}
+.popup {
+  position: absolute;
+  z-index: 20;
+  inset: 4.9rem 0 auto;
+  border: 1px solid var(--ptr-blue);
+  background: var(--ptr-bg);
+  box-shadow: 8px 8px 0 #111;
+  padding: 0.6rem;
+}
+.popup [role='listbox'] {
+  max-block-size: 15rem;
+  overflow: auto;
+}
+.popup button {
+  display: flex;
+  inline-size: 100%;
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  padding: 0.65rem;
+  color: var(--ptr-text);
+  text-align: left;
+  cursor: pointer;
+}
+.popup button:hover,
+.popup button:focus-visible {
+  background: var(--ptr-surface);
+}
+.popup .create {
+  color: var(--ptr-green);
+  border-block-start: 1px dashed var(--ptr-line);
+}
+.state {
+  padding: 0.5rem;
+  color: var(--ptr-muted);
+  font-size: 0.75rem;
+}

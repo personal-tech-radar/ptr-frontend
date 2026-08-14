@@ -1,0 +1,38 @@
+nav {
+  display: flex;
+  inline-size: 100%;
+  align-items: center;
+  gap: 0.125rem;
+  border: 1px solid var(--ptr-line);
+  margin-block-start: 1.5rem;
+  background: var(--ptr-surface);
+  padding: 0.875rem 1rem;
+}
+
+.days {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+button {
+  min-inline-size: 3.25rem;
+  min-block-size: 2.5rem;
+  flex: 1;
+  border: 0;
+  border-block-end: 2px solid transparent;
+  background: none;
+  color: var(--ptr-muted);
+  cursor: pointer;
+
+  &[aria-current='date'] {
+    border-color: var(--ptr-orange);
+    color: var(--ptr-orange);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.65;
+  }
+}

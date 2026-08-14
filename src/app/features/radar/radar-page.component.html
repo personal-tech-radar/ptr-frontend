@@ -1,0 +1,37 @@
+<main class="page">
+  <div class="container">
+    <header class="radar-head">
+      <p class="eyebrow">~/radar --personal</p>
+      <h1 class="page-title">Your personal tech radar</h1>
+      <p class="muted">
+        Signals selected from your technologies, interests and reading preferences.
+      </p>
+    </header>
+    @if (loading()) {
+      <app-feed-skeleton />
+    } @else if (error()) {
+      <section class="panel empty">
+        <p>{{ error() }}</p>
+        <button class="btn" type="button" (click)="load()">Retry</button>
+      </section>
+    } @else if (!signals().length) {
+      <section class="panel empty">
+        <p>
+          No signals match your radar yet. Update your profile or check back after the next scan.
+        </p>
+      </section>
+    } @else {
+      <div class="signal-list">
+        @for (item of signals(); track item.articleId) {
+          <app-signal-card
+            [signal]="item"
+            [actions]="true"
+            [pending]="pending() === item.articleId"
+            (save)="save(item)"
+            (feedback)="feedback(item, $event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</main>

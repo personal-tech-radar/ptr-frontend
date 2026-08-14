@@ -1,6 +1,6 @@
 # Personal Tech Radar frontend
 
-Angular 21 standalone application for Personal Tech Radar. It uses server-side rendering and client hydration to provide an SEO-ready foundation for personalized engineering feeds, radar configuration, interests, sources, and administration.
+Angular 21 standalone application for Personal Tech Radar. It uses server-side rendering and client hydration for public signals, authentication, onboarding, the personalized radar, and profile management. Administrative UI is intentionally out of scope.
 
 ## Requirements
 
@@ -33,6 +33,16 @@ npm run serve:ssr:ptr-frontend
 
 The SSR server listens on `PORT`, defaulting to `4000`.
 
+The frontend API boundary is served by the Angular Express host. Configure it with:
+
+```bash
+PTR_BACKEND_URL=http://127.0.0.1:3300 \
+PTR_BACKEND_API_KEY=your-public-api-key \
+npm run serve:ssr:ptr-frontend
+```
+
+`PTR_BACKEND_API_KEY` is only read by the server and is never included in browser bundles. The proxy rejects `/admin/**`. Development requires the backend live OpenAPI contract at `http://localhost:3300/docs-json`.
+
 ## Architecture
 
 ```text
@@ -53,5 +63,18 @@ The project intentionally has no UI component library or CSS framework. Componen
 ## Server rendering
 
 Angular SSR is configured through `src/main.server.ts`, `src/server.ts`, and `src/app/app.routes.server.ts`. Routes currently render on demand on the server. Browser-only APIs must remain behind platform-safe boundaries so server output and hydrated client output stay equivalent.
+
+Public landing and signal data are server rendered through the protected API boundary. `/radar` server renders its stable shell and feed skeleton, then loads personalized data after browser hydration. Public HTTP responses use Angular's transfer cache to avoid an immediate duplicate hydration request.
+
+## Authentication
+
+Access tokens live in application memory. Rotating refresh tokens are held in browser `sessionStorage`, restored once per tab, and coordinated through a single shared refresh request. They are not placed in `localStorage` and cannot execute during SSR. This matches the current backend body-token contract; an HttpOnly same-site refresh cookie issued by the backend would be the preferred future hardening.
+
+## Routes
+
+- `/` public radar preview
+- `/register`, `/login`, `/verify-email`, `/forgot-password`, `/reset-password`
+- `/onboarding`, `/radar`, `/profile` (authenticated)
+- `/signals/:id` public SSR signal page
 
 SSR host validation currently allows `localhost` and `127.0.0.1`. Add each deployed public hostname to `projects.ptr-frontend.architect.build.options.security.allowedHosts` during deployment configuration; do not use a wildcard in production.
