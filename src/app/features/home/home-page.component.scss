@@ -124,15 +124,21 @@
 .filters p {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: baseline;
+  gap: 6px 12px;
   margin: 0;
 }
 .filters .selected-chip {
+  max-inline-size: 100%;
   margin: 0;
   color: var(--ptr-orange);
   font-size: 12.5px;
+  line-height: 1.45;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
   text-transform: none;
+  white-space: normal;
 }
 .filters span,
 .filters strong {

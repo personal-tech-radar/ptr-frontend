@@ -41,7 +41,9 @@ export class ProfilePageComponent {
   readonly auth = inject(AuthSessionService);
   private readonly router = inject(Router);
   readonly pending = signal(false);
-  readonly notice = signal('');
+  readonly profileSaveState = signal<'idle' | 'saved' | 'error'>('idle');
+  readonly securityMessage = signal('');
+  readonly dangerMessage = signal('');
   readonly deleteConfirmation = signal(false);
   readonly tab = signal<
     'profile' | 'tech' | 'interests' | 'streams' | 'digest' | 'security' | 'danger'
@@ -53,6 +55,10 @@ export class ProfilePageComponent {
   readonly interests = signal<TaxonomyItem[]>([]);
   readonly selectedStreamIds = signal<string[]>([]);
   readonly streamOptions = computed(() => this.streams().map(({ id, name }) => ({ id, name })));
+  readonly digestOptions = [
+    { id: 'daily', name: 'Daily digest' },
+    { id: 'weekly', name: 'Weekly digest' },
+  ];
   readonly experienceOptions: FormSelectOption[] = [
     { value: 'junior', label: 'Junior' },
     { value: 'middle', label: 'Mid-level' },
@@ -127,6 +133,19 @@ export class ProfilePageComponent {
       values.includes(id) ? values.filter((value) => value !== id) : [...values, id],
     );
   }
+  selectedDigestIds(): string[] {
+    return [
+      ...(this.profile.controls.dailyDigestEnabled.value ? ['daily'] : []),
+      ...(this.profile.controls.weeklyDigestEnabled.value ? ['weekly'] : []),
+    ];
+  }
+  toggleDigest(id: string): void {
+    const control =
+      id === 'daily'
+        ? this.profile.controls.dailyDigestEnabled
+        : this.profile.controls.weeklyDigestEnabled;
+    control.setValue(!control.value);
+  }
   search(kind: 'technology' | 'interest', query: string): void {
     this.api.taxonomy(kind, query).subscribe({
       next: (items) =>
@@ -136,6 +155,7 @@ export class ProfilePageComponent {
   }
   save(): void {
     if (this.profile.invalid) return;
+    this.profileSaveState.set('idle');
     this.pending.set(true);
     const v = this.profile.getRawValue();
     this.api
@@ -160,10 +180,16 @@ export class ProfilePageComponent {
       .subscribe({
         next: (u) => {
           this.auth.updateUser(u);
-          this.notice.set('Profile saved.');
+          this.profileSaveState.set('saved');
         },
-        error: () => this.notice.set('Profile could not be saved.'),
+        error: () => this.profileSaveState.set('error'),
       });
+  }
+  profileSaveLabel(): string {
+    if (this.pending()) return 'Saving…';
+    if (this.profileSaveState() === 'saved') return 'Saved successfully';
+    if (this.profileSaveState() === 'error') return 'Save failed — try again';
+    return 'Save changes';
   }
   changePassword(): void {
     if (
@@ -173,6 +199,7 @@ export class ProfilePageComponent {
       this.password.markAllAsTouched();
       return;
     }
+    this.securityMessage.set('');
     this.pending.set(true);
     const v = this.password.getRawValue();
     this.api
@@ -181,9 +208,9 @@ export class ProfilePageComponent {
       .subscribe({
         next: () => {
           this.password.reset();
-          this.notice.set('Password changed.');
+          this.securityMessage.set('Password changed successfully.');
         },
-        error: () => this.notice.set('Password could not be changed.'),
+        error: () => this.securityMessage.set('Password could not be changed.'),
       });
   }
   deleteAccount(): void {
@@ -191,12 +218,17 @@ export class ProfilePageComponent {
       this.deleteConfirmation.set(true);
       return;
     }
-    this.api.deleteMe().subscribe({
-      next: () => {
-        this.auth.clear();
-        void this.router.navigate(['/']);
-      },
-      error: () => this.notice.set('Account deletion failed.'),
-    });
+    this.dangerMessage.set('');
+    this.pending.set(true);
+    this.api
+      .deleteMe()
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: () => {
+          this.auth.clear();
+          void this.router.navigate(['/']);
+        },
+        error: () => this.dangerMessage.set('Account deletion failed. Please try again.'),
+      });
   }
 }

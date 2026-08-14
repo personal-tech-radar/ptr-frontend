@@ -29,10 +29,10 @@
         {{ tab() === 'danger' ? '[+]' : '[-]' }} Danger Zone
       </button>
     </nav>
-    @if (notice()) {
-      <p class="notice">[×] {{ notice() }}</p>
-    }
-    <section class="profile-panel">
+    <section
+      class="profile-panel"
+      [class.profile-panel--critical]="tab() === 'security' || tab() === 'danger'"
+    >
       @if (tab() === 'profile') {
         <div class="section-label">Your profile</div>
         <p>
@@ -111,32 +111,13 @@
           covers what the daily digests missed.
         </p>
         <p>Pick one or both — you can change the rhythm at any time.</p>
-        <div class="choice-list">
-          <button
-            type="button"
-            (click)="
-              profile.controls.dailyDigestEnabled.setValue(
-                !profile.controls.dailyDigestEnabled.value
-              )
-            "
-          >
-            {{ profile.controls.dailyDigestEnabled.value ? '[×]' : '[ ]' }} Daily digest<small
-              >One email each morning with everything the radar caught.</small
-            >
-          </button>
-          <button
-            type="button"
-            (click)="
-              profile.controls.weeklyDigestEnabled.setValue(
-                !profile.controls.weeklyDigestEnabled.value
-              )
-            "
-          >
-            {{ profile.controls.weeklyDigestEnabled.value ? '[×]' : '[ ]' }} Weekly digest<small
-              >A Friday summary of the week — lighter, more editorial.</small
-            >
-          </button>
-        </div>
+        <app-inline-option-selector
+          label="Digest schedule"
+          placeholder="search digest schedule..."
+          [options]="digestOptions"
+          [selectedIds]="selectedDigestIds()"
+          (toggled)="toggleDigest($event)"
+        />
         @if (
           !profile.controls.dailyDigestEnabled.value && !profile.controls.weeklyDigestEnabled.value
         ) {
@@ -146,48 +127,82 @@
         }
       }
       @if (tab() === 'security') {
-        <div class="section-label">Security</div>
-        <p>Changing the password signs out every other session immediately.</p>
-        <form
-          class="form-column security-form"
-          [formGroup]="password"
-          (ngSubmit)="changePassword()"
-        >
-          <label for="current">Current password</label
-          ><input id="current" type="password" formControlName="currentPassword" /><label for="new"
-            >New password</label
-          ><input id="new" type="password" formControlName="newPassword" />
-          <label for="repeat">Repeat new password</label
-          ><input id="repeat" type="password" formControlName="repeatPassword" />
-          @if (
-            password.controls.repeatPassword.touched &&
-            password.controls.repeatPassword.value !== password.controls.newPassword.value
-          ) {
-            <span class="field-error">! passwords do not match</span>
-          }
-          <button class="save" [disabled]="pending()">Change password</button>
-        </form>
+        <div class="critical-box">
+          <div class="section-label">Change password</div>
+          <p class="critical-description">
+            Update the password you use to sign in. After a successful change, every other active
+            session is signed out while this browser stays connected.
+          </p>
+          <form
+            class="form-column security-form"
+            [formGroup]="password"
+            (ngSubmit)="changePassword()"
+          >
+            <label for="current">Current password</label
+            ><input id="current" type="password" formControlName="currentPassword" /><label
+              for="new"
+              >New password</label
+            ><input id="new" type="password" formControlName="newPassword" />
+            <label for="repeat">Repeat new password</label
+            ><input id="repeat" type="password" formControlName="repeatPassword" />
+            @if (
+              password.controls.repeatPassword.touched &&
+              password.controls.repeatPassword.value !== password.controls.newPassword.value
+            ) {
+              <span class="field-error">! passwords do not match</span>
+            }
+            @if (securityMessage()) {
+              <p class="inline-status" aria-live="polite">{{ securityMessage() }}</p>
+            }
+            <button class="save" [disabled]="pending()">Change password</button>
+          </form>
+        </div>
       }
       @if (tab() === 'danger') {
-        <div class="section-label danger-label">Danger zone</div>
-        <p>Permanently delete your account, profile, saved signals and delivery preferences.</p>
-        <div class="delete">
-          @if (!deleteConfirmation()) {
-            <button type="button" (click)="deleteAccount()">Delete account</button>
-          } @else {
-            <p>Deleting your account cannot be undone.</p>
-            <div class="delete-actions">
-              <button type="button" (click)="deleteAccount()">Confirm deletion</button
-              ><button type="button" (click)="deleteConfirmation.set(false)">Cancel</button>
-            </div>
+        <div class="critical-box danger-box">
+          <div class="section-label danger-label">Delete account</div>
+          <p class="critical-description">
+            Permanently delete your profile, radar preferences, saved signals and digest settings.
+            This action cannot be undone.
+          </p>
+          @if (deleteConfirmation()) {
+            <p class="confirmation-message" aria-live="polite">
+              Are you sure you want to permanently delete the account?
+            </p>
           }
+          @if (dangerMessage()) {
+            <p class="inline-status inline-status--error" aria-live="polite">
+              {{ dangerMessage() }}
+            </p>
+          }
+          <div class="delete-actions">
+            <button
+              class="danger-action"
+              type="button"
+              [disabled]="pending()"
+              (click)="deleteAccount()"
+            >
+              {{ deleteConfirmation() ? 'Yes, delete my account' : 'Delete account' }}
+            </button>
+            @if (deleteConfirmation()) {
+              <button class="cancel-action" type="button" (click)="deleteConfirmation.set(false)">
+                Cancel
+              </button>
+            }
+          </div>
         </div>
       }
     </section>
     @if (tab() !== 'security' && tab() !== 'danger') {
       <div class="save-row">
-        <button class="save" type="button" [disabled]="pending()" (click)="save()">
-          Save changes
+        <button
+          class="save"
+          type="button"
+          [disabled]="pending()"
+          aria-live="polite"
+          (click)="save()"
+        >
+          {{ profileSaveLabel() }}
         </button>
       </div>
     }

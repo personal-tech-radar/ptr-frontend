@@ -64,8 +64,12 @@
   color: var(--ptr-orange);
 }
 .filters p .selected-chip {
+  max-inline-size: 100%;
   margin: 0;
-  white-space: nowrap;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  text-align: left;
+  white-space: normal;
 }
 .filter-backdrop {
   position: fixed;
