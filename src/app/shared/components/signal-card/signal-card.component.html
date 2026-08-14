@@ -24,9 +24,10 @@
         type="button"
         [disabled]="pending()"
         [attr.aria-pressed]="signal().saved"
+        aria-live="polite"
         (click)="save.emit()"
       >
-        {{ signal().saved ? '[×]' : '[+]' }} Save for later
+        {{ signal().saved ? '[×]' : '[+]' }} {{ saveLabel() }}
       </button>
     </div>
   }

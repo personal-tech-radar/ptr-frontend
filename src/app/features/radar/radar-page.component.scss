@@ -43,7 +43,8 @@
 .filters p {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: baseline;
+  gap: 6px 12px;
   margin: 0;
 }
 .filters p span,
@@ -58,9 +59,13 @@
   font-weight: 400;
   cursor: pointer;
 }
-.filters p button.selected,
+.filters p .selected-chip,
 .filters strong {
   color: var(--ptr-orange);
+}
+.filters p .selected-chip {
+  margin: 0;
+  white-space: nowrap;
 }
 .filter-backdrop {
   position: fixed;

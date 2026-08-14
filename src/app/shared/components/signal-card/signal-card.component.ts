@@ -14,6 +14,13 @@ export class SignalCardComponent {
   readonly signal = input.required<SignalItem>();
   readonly actions = input(false);
   readonly pending = input(false);
+  readonly saveConfirmed = input(false);
   readonly save = output<void>();
   readonly feedback = output<FeedbackType>();
+
+  saveLabel(): string {
+    if (this.pending()) return this.signal().saved ? 'Removing…' : 'Saving…';
+    if (this.saveConfirmed()) return 'Saved successfully';
+    return this.signal().saved ? 'Remove from saved' : 'Save for later';
+  }
 }

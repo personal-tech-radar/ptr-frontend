@@ -11,6 +11,7 @@ import {
   InfoPage,
   InfoPageListItem,
   OnboardingPayload,
+  PipelineStatistics,
   PublicFeedResponse,
   PreviewFeedResponse,
   PublicSignal,
@@ -109,6 +110,9 @@ export class FrontendApiService {
     return this.http.get<PublicFeedResponse>(`${APP_CONFIG.publicApiUrl}/public/feed`, {
       params,
     });
+  }
+  pipelineStatistics() {
+    return this.http.get<PipelineStatistics>(`${APP_CONFIG.publicApiUrl}/public/feed/statistics`);
   }
   preview(body: {
     technologyInterestIds: string[];

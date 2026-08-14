@@ -20,6 +20,7 @@ export class SignalPageComponent {
   private readonly api = inject(FrontendApiService);
   readonly pending = signal(false);
   readonly saved = signal(false);
+  readonly saveConfirmed = signal(false);
   readonly feedback = signal<'useful' | 'not_useful' | null>(null);
   readonly signal = inject(ActivatedRoute).snapshot.data['signal'] as PublicSignal;
   constructor() {
@@ -47,13 +48,20 @@ export class SignalPageComponent {
     if (this.pending()) return;
     this.pending.set(true);
     const request = this.saved() ? this.api.unsave(this.signal.id) : this.api.save(this.signal.id);
+    const wasSaved = this.saved();
     request.subscribe({
       next: () => {
         this.saved.update((value) => !value);
+        this.saveConfirmed.set(!wasSaved);
         this.pending.set(false);
       },
       error: () => this.pending.set(false),
     });
+  }
+  saveLabel(): string {
+    if (this.pending()) return this.saved() ? 'Removing…' : 'Saving…';
+    if (this.saveConfirmed()) return 'Saved successfully';
+    return this.saved() ? 'Remove from saved' : 'Save for later';
   }
   setFeedback(value: 'useful' | 'not_useful'): void {
     if (this.pending()) return;

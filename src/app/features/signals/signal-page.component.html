@@ -45,9 +45,10 @@
             type="button"
             [disabled]="pending()"
             [attr.aria-pressed]="saved()"
+            aria-live="polite"
             (click)="toggleSave()"
           >
-            {{ saved() ? '[×]' : '[+]' }} Save for later
+            {{ saved() ? '[×]' : '[+]' }} {{ saveLabel() }}
           </button>
         </div>
       }
@@ -63,5 +64,5 @@
       >
     </article>
   </main>
-  <app-footer />
+  <app-footer [divider]="false" />
 </div>

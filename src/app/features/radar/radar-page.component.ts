@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
-import { PublicFilterOption, SignalItem } from '../../core/models/api.models';
+import { PipelineStatistics, PublicFilterOption, SignalItem } from '../../core/models/api.models';
 import { catchError, forkJoin, of } from 'rxjs';
 import { FeedSkeletonComponent } from '../../shared/components/feed-skeleton/feed-skeleton.component';
 import { SignalCardComponent } from '../../shared/components/signal-card/signal-card.component';
@@ -50,7 +50,9 @@ export class RadarPageComponent {
   readonly selectedInterestIds = signal<string[]>([]);
   readonly selectedStreamKeys = signal<string[]>([]);
   readonly savedOnly = signal(false);
-  readonly openFilter = signal<'date' | null>(null);
+  readonly openFilter = signal<'technology' | 'interest' | 'stream' | 'date' | null>(null);
+  readonly statistics = signal<PipelineStatistics | null>(null);
+  readonly saveConfirmations = signal<string[]>([]);
   readonly dates = signal(buildRecentDates(new Date(), 30));
   readonly selectedDate = signal(this.dates()[29]);
   readonly timelineLabels = computed(() =>
@@ -71,7 +73,6 @@ export class RadarPageComponent {
               }),
     })),
   );
-  readonly savedCount = computed(() => this.signals().filter((item) => item.saved).length);
   readonly groups = computed(() => {
     const grouped = new Map<string, SignalItem[]>();
     for (const item of this.signals()) {
@@ -131,22 +132,25 @@ export class RadarPageComponent {
             of({ data: [], meta: { total: 0, page: 1, limit: 100, totalPages: 0 } }),
           ),
         ),
+      statistics: this.statistics()
+        ? of(this.statistics())
+        : this.api.pipelineStatistics().pipe(catchError(() => of(null))),
     }).subscribe({
-      next: ({ feed, publicFeed }) => {
+      next: ({ feed, publicFeed, statistics }) => {
         publicFeed.data.forEach((signal) =>
           this.streamByArticle.set(
             signal.articleId ?? signal.id,
             signal.primaryStream ?? signal.streams[0],
           ),
         );
-        this.signals.set(
-          (feed.days ?? [])
-            .flatMap((d) => d.articles)
-            .map((item) => {
-              const stream = this.streamByArticle.get(item.articleId);
-              return stream ? { ...item, streamId: stream.id, streamName: stream.name } : item;
-            }),
-        );
+        const signals = (feed.days ?? [])
+          .flatMap((d) => d.articles)
+          .map((item) => {
+            const stream = this.streamByArticle.get(item.articleId);
+            return stream ? { ...item, streamId: stream.id, streamName: stream.name } : item;
+          });
+        this.signals.set(signals);
+        this.statistics.set(statistics);
         this.loading.set(false);
       },
       error: () => {
@@ -192,14 +196,38 @@ export class RadarPageComponent {
     this.savedOnly.update((value) => !value);
     this.load();
   }
+  toggleOpen(filter: 'technology' | 'interest' | 'stream' | 'date'): void {
+    this.openFilter.update((current) => (current === filter ? null : filter));
+  }
+  selectedOptions(kind: 'technology' | 'interest' | 'stream'): PublicFilterOption[] {
+    const options =
+      kind === 'technology'
+        ? this.technologyOptions()
+        : kind === 'interest'
+          ? this.interestOptions()
+          : this.streamOptions();
+    const selected =
+      kind === 'technology'
+        ? this.selectedTechnologyIds()
+        : kind === 'interest'
+          ? this.selectedInterestIds()
+          : this.selectedStreamKeys();
+    return options.filter((option) => selected.includes(option.id));
+  }
   save(item: SignalItem): void {
     if (this.pending()) return;
     this.pending.set(item.articleId);
     const request = item.saved ? this.api.unsave(item.articleId) : this.api.save(item.articleId);
     request.subscribe({
       next: () => {
+        const wasSaved = !!item.saved;
         this.signals.update((all) =>
           all.map((v) => (v.articleId === item.articleId ? { ...v, saved: !v.saved } : v)),
+        );
+        this.saveConfirmations.update((ids) =>
+          wasSaved
+            ? ids.filter((id) => id !== item.articleId)
+            : [...new Set([...ids, item.articleId])],
         );
         this.pending.set(null);
       },
