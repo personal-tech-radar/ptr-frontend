@@ -1,4 +1,11 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, forkJoin, map, switchMap } from 'rxjs';
@@ -12,6 +19,7 @@ import {
 } from '../../shared/components/form-select/form-select.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
+import { InlineOptionSelectorComponent } from '../../shared/components/inline-option-selector/inline-option-selector.component';
 
 @Component({
   selector: 'app-profile-page',
@@ -21,6 +29,7 @@ import { FooterComponent } from '../../shared/layout/footer/footer.component';
     FormSelectComponent,
     HeaderComponent,
     FooterComponent,
+    InlineOptionSelectorComponent,
   ],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
@@ -33,6 +42,7 @@ export class ProfilePageComponent {
   private readonly router = inject(Router);
   readonly pending = signal(false);
   readonly notice = signal('');
+  readonly deleteConfirmation = signal(false);
   readonly tab = signal<
     'profile' | 'tech' | 'interests' | 'streams' | 'digest' | 'security' | 'danger'
   >('profile');
@@ -42,6 +52,7 @@ export class ProfilePageComponent {
   readonly technologies = signal<TaxonomyItem[]>([]);
   readonly interests = signal<TaxonomyItem[]>([]);
   readonly selectedStreamIds = signal<string[]>([]);
+  readonly streamOptions = computed(() => this.streams().map(({ id, name }) => ({ id, name })));
   readonly experienceOptions: FormSelectOption[] = [
     { value: 'junior', label: 'Junior' },
     { value: 'middle', label: 'Mid-level' },
@@ -176,7 +187,10 @@ export class ProfilePageComponent {
       });
   }
   deleteAccount(): void {
-    if (!globalThis.confirm?.('Permanently delete your account? This cannot be undone.')) return;
+    if (!this.deleteConfirmation()) {
+      this.deleteConfirmation.set(true);
+      return;
+    }
     this.api.deleteMe().subscribe({
       next: () => {
         this.auth.clear();

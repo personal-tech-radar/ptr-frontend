@@ -14,19 +14,19 @@
     }
     <nav aria-label="Profile sections">
       <button [class.active]="tab() === 'profile'" type="button" (click)="tab.set('profile')">
-        {{ tab() === 'profile' ? '[>]' : '[ ]' }} Profile</button
+        {{ tab() === 'profile' ? '[+]' : '[-]' }} Profile</button
       ><button [class.active]="tab() === 'tech'" type="button" (click)="tab.set('tech')">
-        {{ tab() === 'tech' ? '[>]' : '[ ]' }} Technologies</button
+        {{ tab() === 'tech' ? '[+]' : '[-]' }} Technologies</button
       ><button [class.active]="tab() === 'interests'" type="button" (click)="tab.set('interests')">
-        {{ tab() === 'interests' ? '[>]' : '[ ]' }} Interests</button
+        {{ tab() === 'interests' ? '[+]' : '[-]' }} Interests</button
       ><button [class.active]="tab() === 'streams'" type="button" (click)="tab.set('streams')">
-        {{ tab() === 'streams' ? '[>]' : '[ ]' }} Streams</button
+        {{ tab() === 'streams' ? '[+]' : '[-]' }} Streams</button
       ><button [class.active]="tab() === 'digest'" type="button" (click)="tab.set('digest')">
-        {{ tab() === 'digest' ? '[>]' : '[ ]' }} Digest</button
+        {{ tab() === 'digest' ? '[+]' : '[-]' }} Digest</button
       ><button [class.active]="tab() === 'security'" type="button" (click)="tab.set('security')">
-        {{ tab() === 'security' ? '[>]' : '[ ]' }} Security</button
+        {{ tab() === 'security' ? '[+]' : '[-]' }} Security</button
       ><button [class.active]="tab() === 'danger'" type="button" (click)="tab.set('danger')">
-        {{ tab() === 'danger' ? '[>]' : '[ ]' }} Danger Zone
+        {{ tab() === 'danger' ? '[+]' : '[-]' }} Danger Zone
       </button>
     </nav>
     @if (notice()) {
@@ -96,20 +96,13 @@
       @if (tab() === 'streams') {
         <div class="section-label">Content streams</div>
         <p>Streams group the radar into sections. Turn off anything you never read.</p>
-        <div class="stream-picker">
-          @for (stream of streams(); track stream.id) {
-            <button
-              type="button"
-              [class.selected]="selectedStreamIds().includes(stream.id)"
-              (click)="toggleStream(stream.id)"
-            >
-              {{ selectedStreamIds().includes(stream.id) ? '[×]' : '[ ]' }} {{ stream.name }}
-              @if (stream.description) {
-                <small>{{ stream.description }}</small>
-              }
-            </button>
-          }
-        </div>
+        <app-inline-option-selector
+          label="Content streams"
+          placeholder="search or type your own stream..."
+          [options]="streamOptions()"
+          [selectedIds]="selectedStreamIds()"
+          (toggled)="toggleStream($event)"
+        />
       }
       @if (tab() === 'digest') {
         <div class="section-label">Digest</div>
@@ -179,7 +172,15 @@
         <div class="section-label danger-label">Danger zone</div>
         <p>Permanently delete your account, profile, saved signals and delivery preferences.</p>
         <div class="delete">
-          <button type="button" (click)="deleteAccount()">Delete account</button>
+          @if (!deleteConfirmation()) {
+            <button type="button" (click)="deleteAccount()">Delete account</button>
+          } @else {
+            <p>Deleting your account cannot be undone.</p>
+            <div class="delete-actions">
+              <button type="button" (click)="deleteAccount()">Confirm deletion</button
+              ><button type="button" (click)="deleteConfirmation.set(false)">Cancel</button>
+            </div>
+          }
         </div>
       }
     </section>

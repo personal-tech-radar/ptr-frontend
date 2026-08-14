@@ -72,7 +72,7 @@ Access tokens live in application memory. Rotating refresh tokens are held in br
 
 ## Routes
 
-- `/` public radar preview
+- `/` public radar preview for guests; authenticated users continue to `/radar`
 - `/register`, `/login`, `/verify-email`, `/forgot-password`, `/reset-password`
 - `/onboarding`, `/radar`, `/profile` (authenticated)
 - `/signals/:id` public SSR signal page
@@ -87,3 +87,5 @@ Verification emails must link to the frontend callback, not directly to the back
 `http://localhost:4000/auth/verify-email?token=<verification-token>`
 
 Set the backend `APP_URL` to the public frontend origin. Its generated `/auth/verify-email?token=...` link lands on this SSR-safe frontend callback, which consumes the token through `GET /auth/verify-email`, refreshes the registered user's session state, and continues to `/onboarding`. `/verify-email?token=...` remains available as a compatibility alias.
+
+Run `npm run smoke:registration` with the frontend, backend, and local mailbox running to verify registration, the delivered email link, onboarding continuation, and authenticated redirects in a real browser.

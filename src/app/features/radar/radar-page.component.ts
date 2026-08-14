@@ -20,6 +20,7 @@ import {
 } from '../../shared/components/date-navigation/date-navigation.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popup/ide-filter-popup.component';
 
 @Component({
   selector: 'app-radar-page',
@@ -29,6 +30,7 @@ import { HeaderComponent } from '../../shared/layout/header/header.component';
     DateNavigationComponent,
     HeaderComponent,
     FooterComponent,
+    IdeFilterPopupComponent,
   ],
   templateUrl: './radar-page.component.html',
   styleUrl: './radar-page.component.scss',
@@ -48,11 +50,28 @@ export class RadarPageComponent {
   readonly selectedInterestIds = signal<string[]>([]);
   readonly selectedStreamKeys = signal<string[]>([]);
   readonly savedOnly = signal(false);
-  readonly dates = signal(buildRecentDates());
-  readonly selectedDate = signal(this.dates()[6]);
+  readonly openFilter = signal<'date' | null>(null);
+  readonly dates = signal(buildRecentDates(new Date(), 30));
+  readonly selectedDate = signal(this.dates()[29]);
   readonly timelineLabels = computed(() =>
-    buildRecentDateLabels(new Date(`${this.dates()[6]}T12:00:00Z`)),
+    buildRecentDateLabels(new Date(`${this.dates()[29]}T12:00:00Z`), 30),
   );
+  readonly dateOptions = computed(() =>
+    [...this.dates()].reverse().map((id, index) => ({
+      id,
+      name:
+        index === 0
+          ? 'Today'
+          : index === 1
+            ? 'Yesterday'
+            : new Date(`${id}T12:00:00Z`).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                timeZone: 'UTC',
+              }),
+    })),
+  );
+  readonly savedCount = computed(() => this.signals().filter((item) => item.saved).length);
   readonly groups = computed(() => {
     const grouped = new Map<string, SignalItem[]>();
     for (const item of this.signals()) {
@@ -145,14 +164,16 @@ export class RadarPageComponent {
   }
   selectDate(index: number): void {
     this.selectedDate.set(this.dates()[index]);
+    this.openFilter.set(null);
     this.load();
   }
-  shiftDates(days: number): void {
-    const end = new Date(`${this.dates()[6]}T12:00:00Z`);
-    end.setUTCDate(end.getUTCDate() + days);
-    if (end > new Date(`${buildRecentDates()[6]}T12:00:00Z`)) return;
-    this.dates.set(buildRecentDates(end));
-    this.selectDate(6);
+  selectDateValue(id: string): void {
+    const index = this.dates().indexOf(id);
+    if (index >= 0) this.selectDate(index);
+  }
+  moveDate(offset: number): void {
+    const current = this.dates().indexOf(this.selectedDate());
+    this.selectDate(Math.max(0, Math.min(this.dates().length - 1, current + offset)));
   }
   toggleFilter(kind: 'technology' | 'interest' | 'stream', id: string): void {
     const target =
@@ -166,9 +187,6 @@ export class RadarPageComponent {
     );
     this.savedOnly.set(false);
     this.load();
-  }
-  selected(options: PublicFilterOption[], ids: string[]): PublicFilterOption[] {
-    return options.filter((option) => ids.includes(option.id));
   }
   toggleSavedOnly(): void {
     this.savedOnly.update((value) => !value);

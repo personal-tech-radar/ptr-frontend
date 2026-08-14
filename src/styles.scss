@@ -136,7 +136,9 @@ a:hover {
 }
 
 :where(.action, .submit, .continue, .save, .cta button) {
-  transition: transform 100ms ease, box-shadow 100ms ease;
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
 }
 
 :where(.action, .submit, .continue, .save, .cta button):active:not(:disabled) {

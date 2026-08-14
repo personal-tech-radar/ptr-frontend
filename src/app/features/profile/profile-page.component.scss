@@ -116,37 +116,6 @@
   font-size: 11.5px;
   margin: 4px 0 0 26px;
 }
-.stream-picker {
-  display: grid;
-  max-width: 620px;
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid var(--ptr-line);
-  margin-top: 24px;
-  background: var(--ptr-bg);
-}
-.stream-picker button {
-  border: 0;
-  border-bottom: 1px solid var(--ptr-line);
-  background: transparent;
-  padding: 10px 12px;
-  color: var(--ptr-muted);
-  font: inherit;
-  font-size: 12px;
-  text-align: left;
-  cursor: pointer;
-}
-.stream-picker button:last-child {
-  border-bottom: 0;
-}
-.stream-picker button.selected {
-  color: var(--ptr-orange);
-}
-.stream-picker small {
-  display: block;
-  margin: 4px 0 0 26px;
-  color: var(--ptr-muted);
-}
 .digest-warning {
   margin-top: 20px !important;
   color: var(--ptr-orange) !important;
@@ -189,6 +158,20 @@
   font: inherit;
   font-size: 12px;
   padding: 8px 16px;
+}
+.delete p {
+  margin: 0 0 16px;
+  color: var(--ptr-orange);
+  font-size: 12px;
+}
+.delete-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.delete-actions button:last-child {
+  border-color: var(--ptr-line);
+  color: var(--ptr-muted);
 }
 @media (max-width: 700px) {
   .profile {

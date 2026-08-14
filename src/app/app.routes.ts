@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, registerGuard } from './core/auth/auth.guard';
+import { authGuard, guestGuard, homeGuard } from './core/auth/auth.guard';
 import { signalResolver } from './features/signals/signal.resolver';
 import { infoPageResolver } from './features/info/info-page.resolver';
 
@@ -10,6 +10,7 @@ export const routes: Routes = [
   {
     path: '',
     data: { index: true },
+    canActivate: [homeGuard],
     title: 'Personal Tech Radar — useful engineering signals',
     loadComponent: () =>
       import('./features/home/home-page.component').then((m) => m.HomePageComponent),
@@ -18,13 +19,14 @@ export const routes: Routes = [
     path: 'login',
     title: 'Login — Personal Tech Radar',
     data: { mode: 'login' },
+    canActivate: [guestGuard],
     loadComponent: authPage,
   },
   {
     path: 'register',
     title: 'Register — Personal Tech Radar',
     data: { mode: 'register' },
-    canActivate: [registerGuard],
+    canActivate: [guestGuard],
     loadComponent: authPage,
   },
   {
@@ -96,7 +98,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    title: 'Not found — Personal Tech Radar',
-    loadComponent: () => import('./features/not-found.component').then((m) => m.NotFoundComponent),
+    redirectTo: '',
   },
 ];

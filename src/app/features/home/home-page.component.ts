@@ -52,17 +52,25 @@ export class HomePageComponent {
   readonly selectedTechnologyIds = signal<string[]>([]);
   readonly selectedInterestIds = signal<string[]>([]);
   readonly selectedStreamIds = signal<string[]>([]);
-  readonly dates = signal(buildRecentDates());
-  readonly selectedDate = signal(this.dates()[6]);
+  readonly dates = signal(buildRecentDates(new Date(), 30));
+  readonly selectedDate = signal(this.dates()[29]);
   readonly timelineLabels = computed(() =>
-    this.dates().map((date, index) =>
-      index === 6 && date === buildRecentDates()[6]
-        ? 'Today'
-        : buildRecentDateLabels(new Date(`${this.dates()[6]}T12:00:00Z`))[index],
-    ),
+    buildRecentDateLabels(new Date(`${this.dates()[29]}T12:00:00Z`), 30),
   );
   readonly dateOptions = computed<PublicFilterOption[]>(() =>
-    this.dates().map((id, index) => ({ id, name: this.timelineLabels()[index] })),
+    [...this.dates()].reverse().map((id, index) => ({
+      id,
+      name:
+        index === 0
+          ? 'Today'
+          : index === 1
+            ? 'Yesterday'
+            : new Date(`${id}T12:00:00Z`).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                timeZone: 'UTC',
+              }),
+    })),
   );
   readonly selectedDateIds = computed(() => [this.selectedDate()]);
   readonly selectedDateLabel = computed(
@@ -132,13 +140,10 @@ export class HomePageComponent {
     this.loadPreview();
   }
 
-  shiftDates(days: number): void {
-    const end = new Date(`${this.dates()[6]}T12:00:00Z`);
-    end.setUTCDate(end.getUTCDate() + days);
-    const today = new Date(`${buildRecentDates()[6]}T12:00:00Z`);
-    if (end > today) return;
-    this.dates.set(buildRecentDates(end));
-    this.selectDate(this.dates()[6]);
+  moveDate(offset: number): void {
+    const current = this.dates().indexOf(this.selectedDate());
+    const next = Math.max(0, Math.min(this.dates().length - 1, current + offset));
+    this.selectDate(this.dates()[next]);
   }
 
   toggleOpen(filter: FilterName): void {

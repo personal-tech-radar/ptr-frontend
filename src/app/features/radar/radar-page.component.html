@@ -9,9 +9,13 @@
           </button>
         </div>
         <p>
-          @for (option of selected(technologyOptions(), selectedTechnologyIds()); track option.id) {
-            <button type="button" (click)="toggleFilter('technology', option.id)">
-              [×] {{ option.name }}
+          @for (option of technologyOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedTechnologyIds().includes(option.id)"
+              (click)="toggleFilter('technology', option.id)"
+            >
+              {{ selectedTechnologyIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -25,9 +29,13 @@
           </button>
         </div>
         <p>
-          @for (option of selected(interestOptions(), selectedInterestIds()); track option.id) {
-            <button type="button" (click)="toggleFilter('interest', option.id)">
-              [×] {{ option.name }}
+          @for (option of interestOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedInterestIds().includes(option.id)"
+              (click)="toggleFilter('interest', option.id)"
+            >
+              {{ selectedInterestIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -37,9 +45,13 @@
       <div class="filter-column">
         <div class="filter-trigger"><h2>Streams</h2></div>
         <p>
-          @for (option of selected(streamOptions(), selectedStreamKeys()); track option.id) {
-            <button type="button" (click)="toggleFilter('stream', option.id)">
-              [×] {{ option.name }}
+          @for (option of streamOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedStreamKeys().includes(option.id)"
+              (click)="toggleFilter('stream', option.id)"
+            >
+              {{ selectedStreamKeys().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -50,12 +62,31 @@
         <h2>Saved</h2>
         <p>
           <button type="button" (click)="toggleSavedOnly()">
-            {{ savedOnly() ? '[×]' : '[ ]' }} Saved only
+            {{ savedOnly() ? '[×]' : '[ ]' }} Saved only ·
+            {{ savedCount().toString().padStart(2, '0') }}
           </button>
         </p>
       </div>
-      <div>
-        <h2>Date</h2>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'date'"
+            (click)="openFilter.set(openFilter() === 'date' ? null : 'date')"
+          >
+            Date <small>▾</small>
+          </button>
+          @if (openFilter() === 'date') {
+            <app-ide-filter-popup
+              title="Date"
+              [searchable]="false"
+              [options]="dateOptions()"
+              [selectedIds]="[selectedDate()]"
+              (toggled)="selectDateValue($event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p>
           <strong>{{ timelineLabels()[dates().indexOf(selectedDate())] }}</strong>
         </p>
@@ -91,8 +122,8 @@
       [labels]="timelineLabels()"
       [active]="dates().indexOf(selectedDate())"
       (selected)="selectDate($event)"
-      (previous)="shiftDates(-7)"
-      (next)="shiftDates(7)"
+      (previous)="moveDate(-1)"
+      (next)="moveDate(1)"
     />
     <section class="pipeline">
       <p>Pipeline · Last 24h</p>

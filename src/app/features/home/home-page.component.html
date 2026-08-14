@@ -179,8 +179,8 @@
       [labels]="timelineLabels()"
       [active]="dates().indexOf(selectedDate())"
       (selected)="selectDate(dates()[$event])"
-      (previous)="shiftDates(-7)"
-      (next)="shiftDates(7)"
+      (previous)="moveDate(-1)"
+      (next)="moveDate(1)"
     />
     <section class="pipeline">
       <p>Pipeline · Last 24h</p>

@@ -15,19 +15,19 @@ export class DateNavigationComponent {
   readonly next = output<void>();
 }
 
-export function buildRecentDates(now = new Date()): string[] {
-  return Array.from({ length: 7 }, (_, index) => {
+export function buildRecentDates(now = new Date(), length = 7): string[] {
+  return Array.from({ length }, (_, index) => {
     const date = new Date(now);
-    date.setUTCDate(now.getUTCDate() - (6 - index));
+    date.setUTCDate(now.getUTCDate() - (length - 1 - index));
     return date.toISOString().slice(0, 10);
   });
 }
 
-export function buildRecentDateLabels(now = new Date()): string[] {
-  return Array.from({ length: 7 }, (_, index) => {
-    if (index === 6) return 'Today';
+export function buildRecentDateLabels(now = new Date(), length = 7): string[] {
+  return Array.from({ length }, (_, index) => {
+    if (index === length - 1) return 'Today';
     const date = new Date(now);
-    date.setUTCDate(now.getUTCDate() - (6 - index));
+    date.setUTCDate(now.getUTCDate() - (length - 1 - index));
     return `${date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' })} ${String(date.getUTCDate()).padStart(2, '0')}`;
   });
 }

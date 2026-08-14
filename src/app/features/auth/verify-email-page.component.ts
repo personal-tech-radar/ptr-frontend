@@ -4,6 +4,7 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
+import { of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-verify-email-page',
@@ -55,18 +56,19 @@ export class VerifyEmailPageComponent {
     }
     this.api.verifyEmail(token).subscribe({
       next: () => {
-        if (this.auth.authenticated()) {
-          this.api.me().subscribe({
+        this.auth
+          .restore()
+          .pipe(switchMap((user) => (user ? this.api.me() : of(null))))
+          .subscribe({
             next: (user) => {
-              this.auth.updateUser(user);
+              if (user) this.auth.updateUser(user);
               void this.router.navigate(['/onboarding']);
             },
-            error: () => void this.router.navigate(['/onboarding']),
+            error: () =>
+              void this.router.navigate(['/login'], {
+                queryParams: { returnUrl: '/onboarding' },
+              }),
           });
-        } else {
-          this.message.set('Email verified. You can now sign in.');
-          this.done.set(true);
-        }
       },
       error: () => {
         this.message.set('This verification link is invalid, expired, or already used.');

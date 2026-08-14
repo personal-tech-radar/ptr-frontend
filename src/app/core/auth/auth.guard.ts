@@ -25,12 +25,22 @@ export const authGuard: CanActivateFn = (_route, state) => {
   );
 };
 
-export const registerGuard: CanActivateFn = () => {
+export const guestGuard: CanActivateFn = () => {
   if (isPlatformServer(inject(PLATFORM_ID))) return true;
   const session = inject(AuthSessionService);
   const router = inject(Router);
   return session.restore().pipe(
     map((user) => (user ? router.createUrlTree(['/profile']) : true)),
+    catchError(() => of(true)),
+  );
+};
+
+export const homeGuard: CanActivateFn = () => {
+  if (isPlatformServer(inject(PLATFORM_ID))) return true;
+  const session = inject(AuthSessionService);
+  const router = inject(Router);
+  return session.restore().pipe(
+    map((user) => (user ? router.createUrlTree(['/radar']) : true)),
     catchError(() => of(true)),
   );
 };
