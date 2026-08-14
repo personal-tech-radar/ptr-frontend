@@ -58,18 +58,18 @@
           }
         </p>
       </div>
+      <div class="filter-column">
+        <div class="filter-trigger"><h2>Date</h2></div>
+        <p>
+          <strong>{{ timelineLabels()[dates().indexOf(selectedDate())] }}</strong>
+        </p>
+      </div>
       <div>
         <h2>Saved</h2>
         <p>
           <button type="button" (click)="toggleSavedOnly()">
             {{ savedOnly() ? '[×]' : '[ ]' }} Saved only
           </button>
-        </p>
-      </div>
-      <div class="filter-column">
-        <div class="filter-trigger"><h2>Date</h2></div>
-        <p>
-          <strong>{{ timelineLabels()[dates().indexOf(selectedDate())] }}</strong>
         </p>
       </div>
     </section>
