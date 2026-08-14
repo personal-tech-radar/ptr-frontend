@@ -1,5 +1,10 @@
 <div class="signal-page artwork-page">
-  <app-header />
+  <app-header
+    actionLabel="Login"
+    actionLink="/login"
+    secondaryActionLabel="Subscribe"
+    secondaryActionLink="/register"
+  />
   <main class="container signal-detail">
     <article>
       <h1>{{ signal.title }}</h1>
@@ -27,7 +32,7 @@
         }
       </div>
       <div class="summary">
-        <p>{{ signal.summary }}</p>
+        <p>{{ detailSummary }}</p>
       </div>
       @if (auth.authenticated()) {
         <div class="detail-actions" aria-label="Signal actions">
@@ -63,7 +68,7 @@
         rel="noopener noreferrer"
         ><div class="section-label">Go to the origin</div>
         <h2>{{ signal.title }}</h2>
-        <p>{{ signal.summary }}</p>
+        <p>{{ detailSummary }}</p>
         <span>{{ sourceName() }} →</span></a
       >
     </article>

@@ -23,13 +23,14 @@ export class SignalPageComponent {
   readonly saveConfirmed = signal(false);
   readonly feedback = signal<'useful' | 'not_useful' | null>(null);
   readonly signal = inject(ActivatedRoute).snapshot.data['signal'] as PublicSignal;
+  readonly detailSummary = this.signal.longSummary ?? this.signal.summary ?? '';
   constructor() {
     afterNextRender(() => this.auth.restore().subscribe());
     const title = inject(Title),
       meta = inject(Meta);
     title.setTitle(`${this.signal.title} — Personal Tech Radar`);
     const description = (
-      this.signal.summary ?? 'A public engineering signal from Personal Tech Radar'
+      this.detailSummary || 'A public engineering signal from Personal Tech Radar'
     ).slice(0, 160);
     meta.updateTag({ name: 'description', content: description });
     meta.updateTag({ property: 'og:title', content: this.signal.title });

@@ -31,6 +31,7 @@
   font-size: 14px;
   line-height: 1.85;
   color: var(--ptr-muted);
+  white-space: pre-line;
   margin: 0 0 28px;
 }
 .detail-actions {
@@ -87,6 +88,7 @@
   font-size: 14px;
   line-height: 1.8;
   color: var(--ptr-muted);
+  white-space: pre-line;
   margin: 0 0 20px;
 }
 .origin span {

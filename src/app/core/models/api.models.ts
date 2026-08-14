@@ -96,6 +96,7 @@ export interface PublicSignal {
   author?: unknown;
   publishedAt?: string | null;
   summary?: string | null;
+  longSummary?: string | null;
   technologies: { id: string; name: string }[];
   interests: { id: string; name: string }[];
   streams: { id: string; key: string; name: string }[];

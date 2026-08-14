@@ -13,6 +13,8 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
 export class HeaderComponent {
   readonly actionLabel = input<string>();
   readonly actionLink = input('/');
+  readonly secondaryActionLabel = input<string>();
+  readonly secondaryActionLink = input('/');
   readonly authenticated = input(false);
   readonly authenticatedActionLabel = input('Adjust the radar');
   readonly authenticatedActionLink = input('/profile');

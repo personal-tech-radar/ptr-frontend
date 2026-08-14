@@ -9,6 +9,9 @@
         ><button type="button" (click)="logout()">Logout →</button>
       } @else if (actionLabel()) {
         <a [routerLink]="actionLink()">{{ actionLabel() }}</a>
+        @if (secondaryActionLabel()) {
+          <a class="secondary" [routerLink]="secondaryActionLink()">{{ secondaryActionLabel() }}</a>
+        }
       }
     </nav>
   </div>
