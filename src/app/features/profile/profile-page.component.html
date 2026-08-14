@@ -1,97 +1,144 @@
-<main class="page">
-  <div class="container profile">
-    <header>
-      <p class="eyebrow">user.settings</p>
-      <h1 class="page-title">Profile</h1>
-    </header>
-    <nav class="tabs" aria-label="Profile sections">
-      <button type="button" (click)="tab.set('profile')">Profile</button
-      ><button type="button" (click)="tab.set('password')">Password</button
-      ><button class="danger-link" type="button" (click)="tab.set('danger')">Danger Zone</button>
+<div class="profile-page artwork-page">
+  <app-header
+    [authenticated]="true"
+    authenticatedActionLabel="Back to the radar"
+    authenticatedActionLink="/radar"
+  />
+  <main class="container profile">
+    <h1>Your profile</h1>
+    <nav aria-label="Profile sections">
+      <button [class.active]="tab() === 'profile'" type="button" (click)="tab.set('profile')">
+        {{ tab() === 'profile' ? '[>]' : '[ ]' }} Profile</button
+      ><button [class.active]="tab() === 'tech'" type="button" (click)="tab.set('tech')">
+        {{ tab() === 'tech' ? '[>]' : '[ ]' }} Technologies</button
+      ><button [class.active]="tab() === 'interests'" type="button" (click)="tab.set('interests')">
+        {{ tab() === 'interests' ? '[>]' : '[ ]' }} Interests</button
+      ><button [class.active]="tab() === 'streams'" type="button" (click)="tab.set('streams')">
+        {{ tab() === 'streams' ? '[>]' : '[ ]' }} Streams</button
+      ><button [class.active]="tab() === 'digest'" type="button" (click)="tab.set('digest')">
+        {{ tab() === 'digest' ? '[>]' : '[ ]' }} Digest</button
+      ><button [class.active]="tab() === 'security'" type="button" (click)="tab.set('security')">
+        {{ tab() === 'security' ? '[>]' : '[ ]' }} Security
+      </button>
     </nav>
     @if (notice()) {
-      <p class="status-success" aria-live="polite">{{ notice() }}</p>
+      <p class="notice">[×] {{ notice() }}</p>
     }
-    @if (tab() === 'profile') {
-      <form class="panel" [formGroup]="profile" (ngSubmit)="save()">
-        <div class="field">
+    <section class="profile-panel">
+      @if (tab() === 'profile') {
+        <div class="section-label">Your profile</div>
+        <p>
+          Experience level tunes how much background each summary carries. The GitHub profile is
+          optional and seeds suggestions from the languages you already use. Timezone is prefilled
+          from your browser and decides when the daily radar closes.
+        </p>
+        <form class="form-column" [formGroup]="profile">
           <label for="name">Display name</label
-          ><input class="control" id="name" formControlName="displayName" />
-        </div>
-        <div class="field">
-          <label for="github">GitHub URL</label
-          ><input class="control" id="github" formControlName="githubUrl" />
-        </div>
-        <div class="field">
-          <label for="timezone">Timezone</label
-          ><input class="control" id="timezone" formControlName="timezone" />
-        </div>
-        <div class="field">
-          <label for="level">Experience</label
-          ><select class="control" id="level" formControlName="level">
+          ><input id="name" formControlName="displayName" /><label for="github"
+            >GitHub profile <small>— optional</small></label
+          ><input id="github" formControlName="githubUrl" /><label for="level"
+            >Experience level</label
+          ><select id="level" formControlName="level">
             <option value="junior">Junior</option>
-            <option value="middle">Middle</option>
-            <option value="senior">Senior</option>
-          </select>
-        </div>
-        <label class="toggle"
-          ><input type="checkbox" formControlName="dailyDigestEnabled" /> Daily digest</label
-        ><label class="toggle"
-          ><input type="checkbox" formControlName="weeklyDigestEnabled" /> Weekly digest</label
-        >
-        <fieldset>
-          <legend>Content streams</legend>
-          <div class="stream-grid">
-            @for (stream of streams(); track stream.id) {
-              <label
-                ><input
-                  type="checkbox"
-                  [checked]="selectedStreamIds().includes(stream.id)"
-                  (change)="toggleStream(stream.id)"
-                />
-                {{ stream.name }}</label
-              >
-            }
-          </div>
-        </fieldset>
+            <option value="middle">Mid-level</option>
+            <option value="senior">Senior</option></select
+          ><label for="timezone">Timezone <small>— detected</small></label
+          ><input id="timezone" formControlName="timezone" />
+        </form>
+      }
+      @if (tab() === 'tech') {
+        <div class="section-label">Technologies</div>
+        <p>Pick the stack you actually work with — six to twelve gives the sharpest signal.</p>
+        <p>Missing something? Type it in and add it as your own technology.</p>
         <app-taxonomy-selector
           label="Technologies"
           kind="technology"
+          [inline]="true"
+          placeholder="search or type your own technology..."
           [items]="technologyItems()"
           [selected]="technologies()"
           (selectedChange)="technologies.set($event)"
           (searchQuery)="search('technology', $event)"
         />
+      }
+      @if (tab() === 'interests') {
+        <div class="section-label">Interests</div>
+        <p>
+          These decide which angle of a topic reaches you — the same release can be an architecture
+          story or a security one.
+        </p>
+        <p>Not in the list? Type it in and add it as your own interest.</p>
         <app-taxonomy-selector
           label="Interests"
           kind="interest"
+          [inline]="true"
+          placeholder="search or type your own interest..."
           [items]="interestItems()"
           [selected]="interests()"
           (selectedChange)="interests.set($event)"
           (searchQuery)="search('interest', $event)"
         />
-        <button class="btn btn--primary" [disabled]="pending()">Save profile</button>
-      </form>
-    } @else if (tab() === 'password') {
-      <form class="panel" [formGroup]="password" (ngSubmit)="changePassword()">
-        <div class="field">
+      }
+      @if (tab() === 'streams') {
+        <div class="section-label">Content streams</div>
+        <p>Streams group the radar into sections. Turn off anything you never read.</p>
+        <div class="choice-list">
+          @for (stream of streams(); track stream.id) {
+            <button
+              type="button"
+              [class.selected]="selectedStreamIds().includes(stream.id)"
+              (click)="toggleStream(stream.id)"
+            >
+              {{ selectedStreamIds().includes(stream.id) ? '[×]' : '[ ]' }} {{ stream.name }}
+            </button>
+          }
+        </div>
+      }
+      @if (tab() === 'digest') {
+        <div class="section-label">Digest</div>
+        <p>
+          The daily digest closes at the end of your day. The weekly one arrives Friday morning and
+          covers what the daily digests missed.
+        </p>
+        <p>Pick one or both — you can change the rhythm at any time.</p>
+        <div class="choice-list" [formGroup]="profile">
+          <label
+            ><input type="checkbox" formControlName="dailyDigestEnabled" /> Daily digest<small
+              >One email each morning with everything the radar caught.</small
+            ></label
+          ><label
+            ><input type="checkbox" formControlName="weeklyDigestEnabled" /> Weekly digest<small
+              >A Friday summary of the week — lighter, more editorial.</small
+            ></label
+          >
+        </div>
+      }
+      @if (tab() === 'security') {
+        <div class="section-label danger-label">Danger zone</div>
+        <p>Changing the password signs out every other session immediately.</p>
+        <form class="form-column" [formGroup]="password" (ngSubmit)="changePassword()">
           <label for="current">Current password</label
-          ><input class="control" id="current" type="password" formControlName="currentPassword" />
+          ><input id="current" type="password" formControlName="currentPassword" /><label for="new"
+            >New password</label
+          ><input id="new" type="password" formControlName="newPassword" /><button
+            class="save"
+            [disabled]="pending()"
+          >
+            Change password
+          </button>
+        </form>
+        <div class="delete">
+          <button type="button" (click)="deleteAccount()">Delete account</button>
         </div>
-        <div class="field">
-          <label for="new">New password</label
-          ><input class="control" id="new" type="password" formControlName="newPassword" />
-        </div>
-        <button class="btn btn--primary" [disabled]="pending()">Change password</button>
-      </form>
-    } @else {
-      <section class="panel danger">
-        <h2>Delete account</h2>
-        <p>This permanently removes your profile and preferences. This action cannot be undone.</p>
-        <button class="btn btn--danger" type="button" (click)="deleteAccount()">
-          Delete account
+      }
+    </section>
+    @if (tab() !== 'security') {
+      <div class="save-row">
+        <button class="save" type="button" [disabled]="pending()" (click)="save()">
+          Save changes
         </button>
-      </section>
+      </div>
     }
-  </div>
-</main>
+  </main>
+  <app-footer />
+</div>

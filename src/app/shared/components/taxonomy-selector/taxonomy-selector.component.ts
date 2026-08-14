@@ -25,6 +25,8 @@ export class TaxonomySelectorComponent {
   readonly selected = input<TaxonomyItem[]>([]);
   readonly max = input(5);
   readonly loading = input(false);
+  readonly inline = input(false);
+  readonly placeholder = input('search...');
   readonly selectedChange = output<TaxonomyItem[]>();
   readonly searchQuery = output<string>();
   readonly open = signal(false);

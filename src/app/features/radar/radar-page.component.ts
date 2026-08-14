@@ -3,6 +3,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   PLATFORM_ID,
   signal,
@@ -11,10 +12,19 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { SignalItem } from '../../core/models/api.models';
 import { FeedSkeletonComponent } from '../../shared/components/feed-skeleton/feed-skeleton.component';
 import { SignalCardComponent } from '../../shared/components/signal-card/signal-card.component';
+import { DateNavigationComponent } from '../../shared/components/date-navigation/date-navigation.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
 
 @Component({
   selector: 'app-radar-page',
-  imports: [FeedSkeletonComponent, SignalCardComponent],
+  imports: [
+    FeedSkeletonComponent,
+    SignalCardComponent,
+    DateNavigationComponent,
+    HeaderComponent,
+    FooterComponent,
+  ],
   templateUrl: './radar-page.component.html',
   styleUrl: './radar-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +35,14 @@ export class RadarPageComponent {
   readonly error = signal('');
   readonly signals = signal<SignalItem[]>([]);
   readonly pending = signal<string | null>(null);
+  readonly groups = computed(() => {
+    const grouped = new Map<string, SignalItem[]>();
+    for (const item of this.signals()) {
+      const name = item.materialType ?? 'Signals';
+      grouped.set(name, [...(grouped.get(name) ?? []), item]);
+    }
+    return [...grouped.entries()].map(([name, items]) => ({ name, items }));
+  });
   constructor() {
     const browser = isPlatformBrowser(inject(PLATFORM_ID));
     afterNextRender(() => {

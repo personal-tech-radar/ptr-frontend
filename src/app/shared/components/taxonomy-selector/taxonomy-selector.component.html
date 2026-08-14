@@ -1,21 +1,23 @@
 <div class="selector">
-  <span class="field-label">{{ label() }} ({{ selected().length }}/{{ max() }})</span>
-  <button
-    type="button"
-    class="control trigger"
-    aria-haspopup="listbox"
-    [attr.aria-expanded]="open()"
-    (click)="toggle()"
-  >
-    {{ selected().length ? selected().length + ' selected' : 'Select…' }}
-    <span aria-hidden="true">⌄</span>
-  </button>
+  @if (!inline()) {
+    <span class="field-label">{{ label() }} ({{ selected().length }}/{{ max() }})</span>
+    <button
+      type="button"
+      class="control trigger"
+      aria-haspopup="listbox"
+      [attr.aria-expanded]="open()"
+      (click)="toggle()"
+    >
+      {{ selected().length ? selected().length + ' selected' : 'Select…' }}
+      <span aria-hidden="true">⌄</span>
+    </button>
+  }
   <div class="chip-list">
     @for (item of selected(); track item.name) {
       <button class="chip" type="button" (click)="choose(item)">{{ item.name }} ×</button>
     }
   </div>
-  @if (open()) {
+  @if (open() || inline()) {
     <section class="popup">
       <input
         #searchBox
@@ -23,7 +25,7 @@
         type="search"
         [ngModel]="query()"
         (ngModelChange)="update($event)"
-        placeholder="Type to search…"
+        [placeholder]="placeholder()"
         [attr.aria-label]="'Search ' + label()"
       />
       <div role="listbox" [attr.aria-label]="label()">
@@ -48,11 +50,11 @@
             [disabled]="selected().length >= max()"
             (click)="create()"
           >
-            + Add “{{ query().trim() }}” as your own {{ kind() }}
+            + add "{{ query().trim() }}" as your own {{ kind() }}
           </button>
         }
         @if (!loading() && !items().length && !query().trim()) {
-          <p class="state">Start typing to search.</p>
+          <p class="state">No matches in the index</p>
         }
       </div>
     </section>

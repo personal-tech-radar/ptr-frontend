@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { debounceTime, finalize, Subject, switchMap } from 'rxjs';
@@ -6,10 +6,12 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, TaxonomyItem, TaxonomyKind } from '../../core/models/api.models';
 import { TaxonomySelectorComponent } from '../../shared/components/taxonomy-selector/taxonomy-selector.component';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [ReactiveFormsModule, TaxonomySelectorComponent],
+  imports: [ReactiveFormsModule, TaxonomySelectorComponent, HeaderComponent, FooterComponent],
   templateUrl: './onboarding-page.component.html',
   styleUrl: './onboarding-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,6 +29,10 @@ export class OnboardingPageComponent {
   readonly interests = signal<TaxonomyItem[]>([]);
   readonly pending = signal(false);
   readonly error = signal('');
+  readonly step = signal(0);
+  readonly steps = ['Profile', 'Technologies', 'Interests', 'Streams', 'Digest', 'Review'];
+  readonly daily = signal(true);
+  readonly weekly = signal(false);
   readonly form = this.fb.nonNullable.group({
     timezone: [Intl.DateTimeFormat().resolvedOptions().timeZone, [Validators.required]],
     githubUrl: [''],
@@ -34,22 +40,46 @@ export class OnboardingPageComponent {
     contentStreamIds: [[] as string[], [Validators.required]],
   });
   constructor() {
-    this.api.streams().subscribe((v) => this.streams.set(v));
-    this.api.taxonomy('technology').subscribe((v) => this.technologyItems.set(v));
-    this.api.taxonomy('interest').subscribe((v) => this.interestItems.set(v));
+    afterNextRender(() => this.loadOptions());
     this.queries
       .pipe(
         debounceTime(200),
         switchMap((v) => this.api.taxonomy(v.kind, v.q)),
       )
-      .subscribe((items) => {
-        const kind = items[0]?.kind;
-        if (kind === 'interest') this.interestItems.set(items);
-        else this.technologyItems.set(items);
+      .subscribe({
+        next: (items) => {
+          const kind = items[0]?.kind;
+          if (kind === 'interest') this.interestItems.set(items);
+          else this.technologyItems.set(items);
+        },
+        error: () => this.error.set('No matches in the index.'),
       });
+  }
+  private loadOptions(): void {
+    this.api
+      .streams()
+      .subscribe({ next: (value) => this.streams.set(value), error: () => undefined });
+    this.api.taxonomy('technology').subscribe({
+      next: (value) => this.technologyItems.set(value),
+      error: () => undefined,
+    });
+    this.api.taxonomy('interest').subscribe({
+      next: (value) => this.interestItems.set(value),
+      error: () => undefined,
+    });
   }
   search(kind: TaxonomyKind, q: string): void {
     this.queries.next({ kind, q });
+  }
+  next(): void {
+    if (this.step() < this.steps.length - 1) this.step.update((value) => value + 1);
+    else this.submit();
+  }
+  back(): void {
+    this.step.update((value) => Math.max(0, value - 1));
+  }
+  stepMark(index: number): string {
+    return index < this.step() ? '[x]' : index === this.step() ? '[>]' : '[ ]';
   }
   toggleStream(id: string): void {
     const c = this.form.controls.contentStreamIds;

@@ -1,7 +1,5 @@
 :host {
-  display: flex;
   min-block-size: 100dvh;
-  flex-direction: column;
   overflow: hidden;
   background: var(--ptr-bg);
 }
@@ -22,7 +20,5 @@
 }
 
 main {
-  position: relative;
-  z-index: 1;
-  flex: 1;
+  min-block-size: 100dvh;
 }

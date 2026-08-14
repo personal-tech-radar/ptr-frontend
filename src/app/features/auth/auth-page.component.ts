@@ -7,12 +7,14 @@ import { mapApiError } from '../../core/api/api-error';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { safeReturnUrl } from '../../core/auth/auth.guard';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 type Mode = 'login' | 'register' | 'forgot-password' | 'reset-password';
 
 @Component({
   selector: 'app-auth-page',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, HeaderComponent, FooterComponent],
   templateUrl: './auth-page.component.html',
   styleUrl: './auth-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,13 +39,20 @@ export class AuthPageComponent {
       })[this.mode],
   );
   readonly form = this.fb.nonNullable.group({
-    displayName: [this.mode === 'register' ? '' : ''],
+    displayName: ['', this.mode === 'register' ? [Validators.required] : []],
     email: [
       this.route.snapshot.queryParamMap.get('email') ?? '',
-      [Validators.required, Validators.email],
+      this.mode === 'reset-password' ? [] : [Validators.required, Validators.email],
     ],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: [''],
+    emailConfirm: ['', this.mode === 'register' ? [Validators.required, Validators.email] : []],
+    password: [
+      '',
+      this.mode === 'forgot-password' ? [] : [Validators.required, Validators.minLength(8)],
+    ],
+    confirmPassword: [
+      '',
+      this.mode === 'register' || this.mode === 'reset-password' ? [Validators.required] : [],
+    ],
   });
 
   submit(): void {
@@ -54,6 +63,13 @@ export class AuthPageComponent {
       this.form.controls.password.value !== this.form.controls.confirmPassword.value
     ) {
       this.error.set('Passwords do not match.');
+      return;
+    }
+    if (
+      this.mode === 'register' &&
+      this.form.controls.email.value !== this.form.controls.emailConfirm.value
+    ) {
+      this.error.set('addresses do not match');
       return;
     }
     if (this.form.invalid) {
@@ -76,15 +92,18 @@ export class AuthPageComponent {
     request.pipe(finalize(() => this.pending.set(false))).subscribe({
       next: () => {
         if (this.mode === 'login') {
-          this.api.me().subscribe((user) => {
-            this.auth.updateUser(user);
-            if (!user.emailVerifiedAt) {
-              this.error.set('Confirm your email before continuing.');
-              return;
-            }
-            const fallback = user.onboardingCompletedAt ? '/radar' : '/onboarding';
-            const requested = safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
-            void this.router.navigateByUrl(requested === '/radar' ? fallback : requested);
+          this.api.me().subscribe({
+            next: (user) => {
+              this.auth.updateUser(user);
+              if (!user.emailVerifiedAt) {
+                this.error.set('Confirm your email before continuing.');
+                return;
+              }
+              const fallback = user.onboardingCompletedAt ? '/radar' : '/onboarding';
+              const requested = safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+              void this.router.navigateByUrl(requested === '/radar' ? fallback : requested);
+            },
+            error: (error: unknown) => this.error.set(mapApiError(error).message),
           });
         } else if (this.mode === 'register' || this.mode === 'forgot-password')
           this.success.set(true);

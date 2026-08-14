@@ -76,7 +76,9 @@ a:hover {
 }
 
 .page {
-  padding-block: 2.5rem 4rem;
+  min-block-size: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 .eyebrow {
@@ -221,11 +223,12 @@ a:hover {
 
 .artwork-page {
   position: relative;
-  min-block-size: calc(100dvh - 8rem);
+  min-block-size: 100dvh;
+  overflow: hidden;
 
   &::after {
     position: absolute;
-    z-index: -1;
+    z-index: 0;
     inset: auto 50% -30rem auto;
     inline-size: 118.75rem;
     block-size: 68.75rem;
@@ -289,10 +292,6 @@ a:hover {
   .auth-grid {
     grid-template-columns: 1fr;
     gap: 2.5rem;
-  }
-
-  .auth-copy {
-    order: -1;
   }
 }
 

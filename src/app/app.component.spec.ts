@@ -15,7 +15,6 @@ describe('AppComponent', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('header')).not.toBeNull();
-    expect(element.querySelector('footer')).not.toBeNull();
+    expect(element.querySelector('main')).not.toBeNull();
   });
 });

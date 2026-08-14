@@ -46,3 +46,14 @@
   color: var(--ptr-muted);
   font-size: 0.75rem;
 }
+:host-context(.step-panel) .popup {
+  position: static;
+  box-shadow: none;
+  border-color: var(--ptr-line);
+  padding: 0;
+  margin-top: 16px;
+  max-width: 620px;
+}
+:host-context(.step-panel) .popup > input {
+  margin: -17px 0 16px;
+}

@@ -1,12 +1,99 @@
-.radar-head {
-  padding-block: 1rem 2rem;
-  border-bottom: 1px solid var(--ptr-line);
-  margin-bottom: 1.5rem;
+.radar-page {
+  display: flex;
+  flex-direction: column;
 }
-.signal-list {
+.radar {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+.filters {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 22px;
+  background: var(--ptr-surface);
+  border: 1px solid var(--ptr-line);
+  padding: 22px 24px;
+  margin-bottom: 28px;
+}
+.filters h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ptr-steel);
+  margin: 0 0 10px;
+  font-weight: 400;
+}
+.filters h2 span,
+.filters small {
+  color: var(--ptr-muted);
+}
+.filters p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.filters p span,
+.filters strong {
+  font-size: 12.5px;
+  color: var(--ptr-orange);
+  font-weight: 400;
+}
+.signal-group {
+  margin-bottom: 32px;
+}
+.signal-group > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.signal-group h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0;
+  font-weight: 600;
+}
+.signal-group header > span {
+  color: var(--ptr-steel);
+}
+.signal-group i {
+  flex: 1;
+  border-top: 1px dashed var(--ptr-line);
+}
+.signal-group small {
+  color: var(--ptr-muted);
 }
 .empty {
+  padding: 32px 0;
+  color: var(--ptr-muted);
+  font-size: 13px;
   text-align: center;
+  border: 1px dashed var(--ptr-line);
+}
+.pipeline {
+  padding-top: 8px;
+  margin-top: 48px;
+  font-size: 13px;
+}
+.pipeline > p {
+  color: var(--ptr-muted);
+  margin-bottom: 10px;
+}
+.pipeline > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px 24px;
+}
+.pipeline b {
+  color: var(--ptr-cyan);
+  font-weight: 400;
+}
+@media (max-width: 700px) {
+  .filters {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
 }

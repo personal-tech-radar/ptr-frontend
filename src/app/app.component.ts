@@ -1,14 +1,12 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
-import { FooterComponent } from './shared/layout/footer/footer.component';
-import { HeaderComponent } from './shared/layout/header/header.component';
 import { AuthSessionService } from './core/auth/auth-session.service';
 import { RouteSeoService } from './core/seo/route-seo.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

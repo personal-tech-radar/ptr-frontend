@@ -5,9 +5,12 @@ import { APP_CONFIG } from '../../core/config/app-config';
 import { PublicSignal } from '../../core/models/api.models';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-signal-page',
+  imports: [HeaderComponent, FooterComponent],
   templateUrl: './signal-page.component.html',
   styleUrl: './signal-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -9,7 +9,7 @@ footer {
   justify-items: center;
   gap: 1rem;
   padding-block: 3rem;
-  color: var(--ptr-muted);
+  color: var(--ptr-bg);
   font-size: 0.72rem;
   text-align: center;
 }
@@ -28,5 +28,6 @@ footer {
 }
 
 a {
+  color: var(--ptr-bg);
   text-decoration: none;
 }

@@ -2,26 +2,39 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-verify-email-page',
-  imports: [RouterLink],
-  template: `<main class="page artwork-page">
-    <section class="container panel verify">
-      <p class="eyebrow">Email action</p>
-      <h1 class="page-title">Verify your email</h1>
-      <p class="prose">{{ message() }}</p>
-      @if (done()) {
-        <a class="btn btn--primary" routerLink="/login" [queryParams]="{ returnUrl: '/onboarding' }"
-          >Continue</a
-        >
-      }
-    </section>
-  </main>`,
+  imports: [RouterLink, HeaderComponent, FooterComponent],
+  template: `<div class="page artwork-page">
+    <app-header actionLabel="← Back to today's radar" actionLink="/" />
+    <main class="container verify-wrap">
+      <section class="panel verify">
+        <p class="eyebrow">Email action</p>
+        <h1 class="page-title">Verify your email</h1>
+        <p class="prose">{{ message() }}</p>
+        @if (done()) {
+          <a
+            class="btn btn--primary"
+            routerLink="/login"
+            [queryParams]="{ returnUrl: '/onboarding' }"
+            >Continue</a
+          >
+        }
+      </section>
+    </main>
+    <app-footer />
+  </div>`,
   styles: `
     .verify {
-      max-width: 38rem;
-      margin-inline: auto;
+      max-width: 440px;
+    }
+    .verify-wrap {
+      padding-top: 56px;
+      position: relative;
+      z-index: 1;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,99 +1,185 @@
-<main class="page artwork-page">
-  <div class="container auth-grid">
-    <section class="auth-copy">
-      <p class="eyebrow">~/personal-tech-radar</p>
-      <h1>{{ title() }}</h1>
-      <p>
-        Curated engineering signals matched to your stack, interests and experience. Less noise,
-        more useful reading.
-      </p>
-    </section>
-    <section class="panel auth-panel" aria-live="polite">
-      @if (success()) {
-        <p class="status-success">
+<div class="auth-page artwork-page">
+  <app-header
+    [actionLabel]="
+      mode === 'register' ? 'Already have an account? Sign in' : '← Back to today\'s radar'
+    "
+    [actionLink]="mode === 'register' ? '/login' : '/'"
+  />
+  <main class="container auth-main">
+    <div class="auth-grid">
+      <section class="panel auth-panel" aria-live="polite">
+        @if (success()) {
           @if (mode === 'register') {
-            Account created. Check your inbox to verify your email.
+            <div class="section-label">Status</div>
+            <div class="status-list">
+              <div><span>[×]</span> Account created</div>
+              <div><span>[×]</span> Validation link sent</div>
+              <div>[ ] Email validated</div>
+            </div>
+            <div class="resend">
+              <div>Nothing in your inbox after a minute?</div>
+              <button type="button" [disabled]="pending()" (click)="resend()">
+                Resend the validation link
+              </button>
+            </div>
+            <a class="submit" routerLink="/login" [queryParams]="{ returnUrl: '/onboarding' }"
+              >I confirmed it — set up my radar</a
+            >
           } @else if (mode === 'forgot-password') {
-            If an account exists, recovery instructions are on their way.
+            <div class="section-label">Reset link sent</div>
+            <p>
+              A reset link is on its way to <span class="cyan">{{ form.controls.email.value }}</span
+              >. It stays valid for one hour.
+            </p>
+            <div class="status-list">
+              <div><span>[×]</span> Reset link sent</div>
+              <div>[ ] New password set</div>
+            </div>
+            <div class="resend">
+              <div>Nothing in your inbox after a minute?</div>
+              <button type="button" (click)="submit()">Send it again</button>
+            </div>
+            <a routerLink="/login">← Back to sign in</a>
           } @else {
-            Your password has been updated.
+            <div class="section-label">Password reset</div>
+            <p>Your password has been updated.</p>
+            <a class="submit" routerLink="/login">Back to sign in</a>
           }
-        </p>
-        @if (mode === 'register') {
-          <button class="btn btn--text" type="button" [disabled]="pending()" (click)="resend()">
-            Resend verification email
-          </button>
-        }
-        <a class="btn btn--primary" routerLink="/login">Continue to login</a>
-      } @else {
-        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          @if (mode === 'register') {
-            <div class="field">
+        } @else {
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="section-label">
+              {{
+                mode === 'register'
+                  ? 'Subscription'
+                  : mode === 'login'
+                    ? 'Authentication'
+                    : 'Password reset'
+              }}
+            </div>
+            @if (mode === 'register') {
               <label for="displayName">Display name</label
               ><input
-                class="control"
                 id="displayName"
                 formControlName="displayName"
                 autocomplete="name"
-                required
+                placeholder="Jane Doe"
               />
-            </div>
-          }
-          @if (mode !== 'reset-password') {
-            <div class="field">
+            }
+            @if (mode !== 'reset-password') {
               <label for="email">Email</label
               ><input
-                class="control"
                 id="email"
                 type="email"
                 formControlName="email"
                 autocomplete="email"
-                [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+                [placeholder]="mode === 'register' ? 'jane.doe@example.com' : 'you@example.com'"
               />
-            </div>
-          }
-          @if (mode !== 'forgot-password') {
-            <div class="field">
-              <label for="password">{{
-                mode === 'reset-password' ? 'New password' : 'Password'
-              }}</label
+            }
+            @if (mode === 'register') {
+              <label for="emailConfirm">Repeat email</label
               ><input
-                class="control"
+                id="emailConfirm"
+                type="email"
+                formControlName="emailConfirm"
+                autocomplete="email"
+                placeholder="jane.doe@example.com"
+              />
+            }
+            @if (mode !== 'forgot-password') {
+              <div class="password-label">
+                <label for="password">{{
+                  mode === 'reset-password' ? 'New password' : 'Password'
+                }}</label>
+                @if (mode === 'login') {
+                  <a routerLink="/forgot-password">Forgot password?</a>
+                }
+              </div>
+              <input
                 id="password"
                 type="password"
                 formControlName="password"
                 [autocomplete]="mode === 'login' ? 'current-password' : 'new-password'"
-              /><small class="muted">At least 8 characters.</small>
-            </div>
-          }
-          @if (mode === 'register' || mode === 'reset-password') {
-            <div class="field">
-              <label for="confirmPassword">Confirm password</label
+                [placeholder]="mode === 'register' ? 'at least 8 characters' : '••••••••'"
+              />
+            }
+            @if (mode === 'register' || mode === 'reset-password') {
+              <label for="confirmPassword">Repeat password</label
               ><input
-                class="control"
                 id="confirmPassword"
                 type="password"
                 formControlName="confirmPassword"
                 autocomplete="new-password"
+                placeholder="••••••••"
               />
-            </div>
-          }
-          @if (error()) {
-            <p class="status-error" role="alert">{{ error() }}</p>
-          }
-          <button class="btn btn--primary" type="submit" [disabled]="pending()">
-            {{ pending() ? 'Working…' : title() }}
-          </button>
-        </form>
-        <nav class="auth-links" aria-label="Account links">
-          @if (mode === 'login') {
-            <a routerLink="/forgot-password">Forgot password?</a
-            ><a routerLink="/register">Create account</a>
+            }
+            @if (error()) {
+              <p class="form-error" role="alert">! {{ error() }}</p>
+            }
+            <button class="submit" type="submit" [disabled]="pending()">
+              {{
+                mode === 'login'
+                  ? 'Sign in'
+                  : mode === 'register'
+                    ? 'Create account'
+                    : mode === 'forgot-password'
+                      ? 'Send reset link'
+                      : 'Set new password'
+              }}
+            </button>
+            @if (mode === 'login') {
+              <div class="account-link">
+                <div>No account yet?</div>
+                <a routerLink="/register">Create your radar →</a>
+              </div>
+            } @else if (mode !== 'register') {
+              <div class="account-link"><a routerLink="/login">← Back to sign in</a></div>
+            }
+          </form>
+        }
+      </section>
+      <section class="auth-copy">
+        @if (mode === 'register') {
+          <h1>{{ success() ? 'Confirm your email' : 'Create your account' }}</h1>
+          @if (success()) {
+            <p>
+              A validation link was sent to <span class="cyan">{{ form.controls.email.value }}</span
+              >. Open it to activate the account — until the address is confirmed the radar cannot
+              send you the daily digests, which is the part that does the actual work.
+            </p>
+            <div class="section-label">What's next</div>
+            <ol>
+              <li><b>01</b> Open the link — it stays valid for 24 hours.</li>
+              <li><b>02</b> Finish onboarding: experience, technologies, interests, streams.</li>
+              <li><b>03</b> Your first radar is assembled the same day.</li>
+            </ol>
           } @else {
-            <a routerLink="/login">Back to login</a>
+            <p>
+              Three fields, then a confirmation email. Setting up the radar itself — technologies,
+              interests, streams — happens right after.
+            </p>
+            <div class="section-label">How it works</div>
+            <ol>
+              <li><b>01</b> Fill in the form — name, email, password.</li>
+              <li><b>02</b> Open the validation link we send to that address.</li>
+              <li><b>03</b> Finish onboarding: experience, technologies, interests, streams.</li>
+              <li><b>04</b> Your first radar is assembled the same day.</li>
+            </ol>
           }
-        </nav>
-      }
-    </section>
-  </div>
-</main>
+        } @else {
+          <h1>Sign in to your radar</h1>
+          <p>
+            Your radar tracks 540 sources continuously and keeps only what matches the technologies
+            and interests you selected. Nothing is broadcast to everyone — the feed is assembled per
+            account.
+          </p>
+          <ul>
+            <li>✓ One digest instead of forty open tabs</li>
+            <li>✓ Summaries written for engineers, not for SEO</li>
+            <li>✓ Your own sources alongside the curated index</li>
+          </ul>
+        }
+      </section>
+    </div>
+  </main>
+  <app-footer />
+</div>

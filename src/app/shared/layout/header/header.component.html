@@ -1,13 +1,16 @@
 <header class="container site-header">
-  <a class="brand" routerLink="/">Personal Tech Radar<span aria-hidden="true">_</span></a>
-  <nav aria-label="Primary navigation">
-    @if (session.authenticated()) {
-      <a routerLink="/radar">Radar</a>
-      <a class="adjust" routerLink="/profile">Adjust the radar</a>
-      <button type="button" (click)="logout()">Logout →</button>
-    } @else {
-      <a routerLink="/login">Login</a>
-      <a routerLink="/register">Subscribe</a>
-    }
-  </nav>
+  <div class="header-row">
+    <a class="brand" routerLink="/">Personal Tech Radar<span aria-hidden="true">_</span></a>
+    <nav aria-label="Primary navigation">
+      @if (authenticated() || session.authenticated()) {
+        <a class="adjust" [routerLink]="authenticatedActionLink()">{{
+          authenticatedActionLabel()
+        }}</a
+        ><button type="button" (click)="logout()">Logout →</button>
+      } @else if (actionLabel()) {
+        <a [routerLink]="actionLink()">{{ actionLabel() }}</a>
+      }
+    </nav>
+  </div>
+  <div class="rule"></div>
 </header>

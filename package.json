@@ -14,6 +14,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "visual:compare": "node scripts/visual-compare.mjs",
     "serve:ssr:ptr-frontend": "node dist/ptr-frontend/server/server.mjs"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^16.5.0",
     "jsdom": "^27.1.0",
+    "playwright": "^1.62.1",
     "prettier": "^3.7.3",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.48.0",

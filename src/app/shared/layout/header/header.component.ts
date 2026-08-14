@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthSessionService } from '../../../core/auth/auth-session.service';
@@ -11,6 +11,11 @@ import { AuthSessionService } from '../../../core/auth/auth-session.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
+  readonly actionLabel = input<string>();
+  readonly actionLink = input('/');
+  readonly authenticated = input(false);
+  readonly authenticatedActionLabel = input('Adjust the radar');
+  readonly authenticatedActionLink = input('/profile');
   private readonly router = inject(Router);
   protected readonly session = inject(AuthSessionService);
 

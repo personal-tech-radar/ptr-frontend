@@ -25,7 +25,7 @@ export class RouteSeoService {
       if (!canonical) {
         canonical = this.document.createElement('link');
         canonical.rel = 'canonical';
-        this.document.head.append(canonical);
+        this.document.head.appendChild(canonical);
       }
       canonical.href = `${APP_CONFIG.siteUrl}${this.router.url.split('?')[0]}`;
     });

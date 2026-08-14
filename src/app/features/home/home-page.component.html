@@ -1,59 +1,120 @@
-<main>
-  <section class="hero container">
-    <div class="double-panel">
-      <p class="eyebrow">Personal Tech Radar</p>
-      <h1>Stay current without living in your feed.</h1>
-      <p>
-        High-signal engineering reading, selected around the tools you use and the things you want
-        to learn.
-      </p>
-      <a class="btn btn--primary" [routerLink]="auth.authenticated() ? '/radar' : '/register'">{{
-        auth.authenticated() ? 'Open my radar' : 'Build my radar'
-      }}</a>
+<div class="landing">
+  <header class="hero container">
+    <div class="hero-frame">
+      <h1>Personal Tech Radar<span aria-hidden="true">_</span></h1>
+      <p class="hero-lead">Stay tuned across the tech landscape.</p>
+      <p>One place for releases, engineering blogs, vulnerabilities and expert opinions.</p>
+      <p>Sign in to build your personal radar or explore today's sample.</p>
+      <a class="learn" href="#cta">Learn more →</a>
+      <div class="hero-actions">
+        <a class="action action--primary" routerLink="/login">Login</a
+        ><a class="action action--secondary" routerLink="/register">Subscribe</a>
+      </div>
     </div>
-  </section>
-  <section class="container feed-section">
-    <header class="section-head">
+  </header>
+  <section id="radar" class="radar container">
+    <h2>Radar Online</h2>
+    <p>
+      This is a sample personalized radar. Technologies and interests are preselected to demonstrate
+      how your own radar will look after subscribing.
+    </p>
+    <p class="radar-strong">
+      Once you subscribe, you'll be able to add your own interests, technologies and sources.
+    </p>
+    <div class="filters">
       <div>
-        <p class="eyebrow">Public radar / live preview</p>
-        <h2>Signals worth your attention</h2>
+        <button type="button">Technology <small>▾</small></button>
+        <p>
+          <span>[×] Node.js</span><span>[×] NestJS</span><span>[×] PostgreSQL</span
+          ><span>[×] AI Agents</span>
+        </p>
       </div>
-      <div class="filter-placeholder" aria-label="Preview filters">
-        <span>technology</span><span>interest</span><span>stream</span>
+      <div>
+        <button type="button">Interests <small>▾</small></button>
+        <p><span>[×] Architecture</span><span>[×] Backend</span><span>[×] DevOps</span></p>
       </div>
-    </header>
-    <app-date-navigation [labels]="['Today', 'Yesterday', 'Earlier']" [disabled]="true" />
+      <div>
+        <button type="button">Streams <small>▾</small></button>
+        <p>
+          <span>[×] Engineering Blogs</span><span>[×] Releases</span><span>[×] Vulnerabilities</span
+          ><span>[×] Expert Opinions</span>
+        </p>
+      </div>
+      <div>
+        <button type="button">Date <small>▾</small></button>
+        <p><strong>Today</strong></p>
+      </div>
+    </div>
     @if (loading()) {
       <app-feed-skeleton />
     } @else if (error()) {
-      <div class="panel empty">
-        <p>{{ error() }}</p>
-      </div>
+      <div class="empty">{{ error() }}</div>
     } @else if (!signals().length) {
-      <div class="panel empty"><p>No public signals match this view yet.</p></div>
+      <div class="empty">No signals match your current filters.</div>
     } @else {
-      <div class="signal-grid">
-        @for (item of signals(); track item.articleId) {
-          <app-signal-card [signal]="item" />
-        }
-      </div>
+      @for (group of groups(); track group.name) {
+        <section class="signal-group">
+          <header>
+            <span>§</span>
+            <h3>{{ group.name }}</h3>
+            <i></i><small>{{ group.items.length }}</small>
+          </header>
+          @for (item of group.items; track item.articleId) {
+            <app-signal-card [signal]="item" />
+          }
+        </section>
+      }
     }
+    <app-date-navigation
+      [labels]="['Wed 08', 'Thu 09', 'Fri 10', 'Sat 11', 'Sun 12', 'Mon 13', 'Today']"
+      [active]="6"
+      [disabled]="true"
+    />
+    <section class="pipeline">
+      <p>Pipeline · Last 24h</p>
+      <div>
+        <span><b>540</b> active sources</span><span><b>5,324</b> articles collected</span
+        ><span><b>3,245</b> articles analyzed</span><span><b>256</b> selected for your radar</span>
+      </div>
+    </section>
   </section>
-  <section class="cta">
-    <div class="container">
-      <p class="eyebrow">$ subscribe --personal</p>
-      <h2>Let the useful parts find you.</h2>
-      <p>Set your stack and interests. Your radar evolves with you.</p>
-      <form (submit)="$event.preventDefault(); subscribe(emailInput.value)">
-        <label class="sr-only" for="cta-email">Email address</label
-        ><input
-          #emailInput
-          class="control"
-          id="cta-email"
-          type="email"
-          placeholder="you@example.com"
-        /><button class="btn btn--primary" type="submit">Subscribe</button>
-      </form>
-    </div>
-  </section>
-</main>
+  <div class="closing">
+    <section id="cta" class="cta container">
+      <div class="cta-frame">
+        <h2>Stay tuned across the tech landscape</h2>
+        <p>
+          Modern software engineering moves too fast. New framework releases, security advisories,
+          architecture articles, RFCs, engineering blogs and community discussions appear every hour
+          across hundreds of independent sources.
+        </p>
+        <p>
+          Personal Tech Radar brings everything together into one personalized feed and one daily
+          email digest. Instead of checking dozens of websites throughout the day, you receive only
+          the signals that match your interests — organized, summarized and ready to read.
+        </p>
+        <p class="cta-strong">Build your own radar once. Stay informed every day.</p>
+        <form (submit)="$event.preventDefault(); subscribe(emailInput.value)">
+          <label class="sr-only" for="cta-email">Email</label
+          ><input
+            #emailInput
+            id="cta-email"
+            type="email"
+            required
+            placeholder="you@company.com"
+          /><button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+    <footer class="container">
+      <div>
+        <span>Legal Notice</span><span>·</span><span>Privacy Policy</span><span>·</span
+        ><span>Cookies Policy</span>
+      </div>
+      <div>
+        <a href="mailto:miter.sidorov@personalradar.dev">miter.sidorov&#64;personalradar.dev</a
+        ><span>·</span><span>GitHub</span><span>·</span><span>LinkedIn</span>
+      </div>
+      <span>© 2026 Personal Tech Radar. All rights reserved.</span>
+    </footer>
+  </div>
+</div>

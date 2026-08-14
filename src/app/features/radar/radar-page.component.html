@@ -1,37 +1,72 @@
-<main class="page">
-  <div class="container">
-    <header class="radar-head">
-      <p class="eyebrow">~/radar --personal</p>
-      <h1 class="page-title">Your personal tech radar</h1>
-      <p class="muted">
-        Signals selected from your technologies, interests and reading preferences.
-      </p>
-    </header>
+<div class="radar-page artwork-page">
+  <app-header [authenticated]="true" />
+  <main class="container radar">
+    <section class="filters">
+      <div>
+        <h2>Technology <span>[×]</span></h2>
+        <p>
+          <span>[×] Node.js</span><span>[×] TypeScript</span><span>[×] PostgreSQL</span
+          ><span>[×] Kubernetes</span>
+        </p>
+      </div>
+      <div>
+        <h2>Interests <span>[×]</span></h2>
+        <p><span>[×] Architecture</span><span>[×] Backend</span></p>
+      </div>
+      <div>
+        <h2>Streams</h2>
+        <p>
+          <span>[×] Engineering Blogs</span><span>[×] Releases</span
+          ><span>[×] Vulnerabilities</span>
+        </p>
+      </div>
+      <div>
+        <h2>Saved</h2>
+        <p><span>[ ] Saved only · 0</span></p>
+      </div>
+      <div>
+        <h2>Date <small>▾</small></h2>
+        <p><strong>Today</strong></p>
+      </div>
+    </section>
     @if (loading()) {
       <app-feed-skeleton />
     } @else if (error()) {
-      <section class="panel empty">
-        <p>{{ error() }}</p>
-        <button class="btn" type="button" (click)="load()">Retry</button>
-      </section>
+      <div class="empty">{{ error() }}</div>
     } @else if (!signals().length) {
-      <section class="panel empty">
-        <p>
-          No signals match your radar yet. Update your profile or check back after the next scan.
-        </p>
-      </section>
+      <div class="empty">No signals match your current filters.</div>
     } @else {
-      <div class="signal-list">
-        @for (item of signals(); track item.articleId) {
-          <app-signal-card
-            [signal]="item"
-            [actions]="true"
-            [pending]="pending() === item.articleId"
-            (save)="save(item)"
-            (feedback)="feedback(item, $event)"
-          />
-        }
-      </div>
+      @for (group of groups(); track group.name) {
+        <section class="signal-group">
+          <header>
+            <span>§</span>
+            <h3>{{ group.name }}</h3>
+            <i></i><small>{{ group.items.length }}</small>
+          </header>
+          @for (item of group.items; track item.articleId) {
+            <app-signal-card
+              [signal]="item"
+              [actions]="true"
+              [pending]="pending() === item.articleId"
+              (save)="save(item)"
+              (feedback)="feedback(item, $event)"
+            />
+          }
+        </section>
+      }
     }
-  </div>
-</main>
+    <app-date-navigation
+      [labels]="['Wed 08', 'Thu 09', 'Fri 10', 'Sat 11', 'Sun 12', 'Mon 13', 'Today']"
+      [active]="6"
+      [disabled]="true"
+    />
+    <section class="pipeline">
+      <p>Pipeline · Last 24h</p>
+      <div>
+        <span><b>540</b> active sources</span><span><b>5,324</b> articles collected</span
+        ><span><b>3,245</b> articles analyzed</span><span><b>256</b> selected for your radar</span>
+      </div>
+    </section>
+  </main>
+  <app-footer />
+</div>

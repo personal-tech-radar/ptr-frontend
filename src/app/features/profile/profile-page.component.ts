@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize, forkJoin, map, switchMap } from 'rxjs';
@@ -6,10 +6,12 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, ExperienceLevel, TaxonomyItem } from '../../core/models/api.models';
 import { TaxonomySelectorComponent } from '../../shared/components/taxonomy-selector/taxonomy-selector.component';
+import { HeaderComponent } from '../../shared/layout/header/header.component';
+import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [ReactiveFormsModule, TaxonomySelectorComponent],
+  imports: [ReactiveFormsModule, TaxonomySelectorComponent, HeaderComponent, FooterComponent],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,7 +23,9 @@ export class ProfilePageComponent {
   private readonly router = inject(Router);
   readonly pending = signal(false);
   readonly notice = signal('');
-  readonly tab = signal<'profile' | 'password' | 'danger'>('profile');
+  readonly tab = signal<'profile' | 'tech' | 'interests' | 'streams' | 'digest' | 'security'>(
+    'profile',
+  );
   readonly streams = signal<ContentStream[]>([]);
   readonly technologyItems = signal<TaxonomyItem[]>([]);
   readonly interestItems = signal<TaxonomyItem[]>([]);
@@ -41,29 +45,38 @@ export class ProfilePageComponent {
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
   });
   constructor() {
-    this.api.me().subscribe((u) => {
-      this.auth.updateUser(u);
-      this.profile.patchValue({
-        displayName: u.displayName,
-        githubUrl: u.githubUrl ?? '',
-        timezone: u.timezone ?? '',
-        level: u.level ?? 'middle',
-        dailyDigestEnabled: u.dailyDigestEnabled,
-        weeklyDigestEnabled: u.weeklyDigestEnabled,
-      });
+    afterNextRender(() => this.loadProfile());
+  }
+  private loadProfile(): void {
+    this.api.me().subscribe({
+      next: (u) => {
+        this.auth.updateUser(u);
+        this.profile.patchValue({
+          displayName: u.displayName,
+          githubUrl: u.githubUrl ?? '',
+          timezone: u.timezone ?? '',
+          level: u.level ?? 'middle',
+          dailyDigestEnabled: u.dailyDigestEnabled,
+          weeklyDigestEnabled: u.weeklyDigestEnabled,
+        });
+      },
+      error: () => undefined,
     });
     forkJoin({
       streams: this.api.streams(),
       taxonomy: this.api.userTaxonomy(),
       technologies: this.api.taxonomy('technology'),
       interests: this.api.taxonomy('interest'),
-    }).subscribe(({ streams, taxonomy, technologies, interests }) => {
-      this.streams.set(streams);
-      this.technologies.set(taxonomy.technologyInterests.filter((v) => v.kind === 'technology'));
-      this.interests.set(taxonomy.technologyInterests.filter((v) => v.kind === 'interest'));
-      this.selectedStreamIds.set(taxonomy.contentStreams.map((v) => v.id));
-      this.technologyItems.set(technologies);
-      this.interestItems.set(interests);
+    }).subscribe({
+      next: ({ streams, taxonomy, technologies, interests }) => {
+        this.streams.set(streams);
+        this.technologies.set(taxonomy.technologyInterests.filter((v) => v.kind === 'technology'));
+        this.interests.set(taxonomy.technologyInterests.filter((v) => v.kind === 'interest'));
+        this.selectedStreamIds.set(taxonomy.contentStreams.map((v) => v.id));
+        this.technologyItems.set(technologies);
+        this.interestItems.set(interests);
+      },
+      error: () => undefined,
     });
   }
   toggleStream(id: string): void {
@@ -72,11 +85,11 @@ export class ProfilePageComponent {
     );
   }
   search(kind: 'technology' | 'interest', query: string): void {
-    this.api
-      .taxonomy(kind, query)
-      .subscribe((items) =>
+    this.api.taxonomy(kind, query).subscribe({
+      next: (items) =>
         kind === 'technology' ? this.technologyItems.set(items) : this.interestItems.set(items),
-      );
+      error: () => undefined,
+    });
   }
   save(): void {
     if (this.profile.invalid) return;
