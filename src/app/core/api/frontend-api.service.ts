@@ -142,7 +142,7 @@ export class FrontendApiService {
     return this.http.delete<void>(`${this.api}/saved-articles/${id}`);
   }
   feedback(id: string, feedback: FeedbackType) {
-    return this.http.post<void>(`${this.api}/articles/${id}/feedback`, { feedback });
+    return this.http.post<void>(`${this.api}/articles/${id}/feedback`, { type: feedback });
   }
 }
 

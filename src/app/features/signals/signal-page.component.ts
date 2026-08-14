@@ -66,7 +66,7 @@ export class SignalPageComponent {
   setFeedback(value: 'useful' | 'not_useful'): void {
     if (this.pending()) return;
     this.pending.set(true);
-    this.api.feedback(this.signal.id, value).subscribe({
+    this.api.feedback(this.signal.articleId ?? this.signal.id, value).subscribe({
       next: () => {
         this.feedback.set(value);
         this.pending.set(false);
