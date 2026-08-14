@@ -7,6 +7,9 @@ import {
   ContentStream,
   FeedResponse,
   FeedbackType,
+  AuthTokens,
+  InfoPage,
+  InfoPageListItem,
   OnboardingPayload,
   PublicFeedResponse,
   PreviewFeedResponse,
@@ -24,7 +27,7 @@ export class FrontendApiService {
   private readonly api = APP_CONFIG.apiUrl;
 
   register(body: { email: string; password: string; displayName: string }) {
-    return this.http.post<void>(`${this.api}/auth/register`, body);
+    return this.http.post<AuthTokens>(`${this.api}/auth/register`, body);
   }
   resendVerification(email: string) {
     return this.http.post<void>(`${this.api}/auth/verification/resend`, { email });
@@ -70,12 +73,24 @@ export class FrontendApiService {
       })
       .pipe(map((value) => (Array.isArray(value) ? value : (value.data ?? []))));
   }
+  publicTaxonomy(kind: TaxonomyKind, page = 1) {
+    const params = new HttpParams().set('kind', kind).set('page', page).set('limit', 100);
+    return this.http.get<{ data: TaxonomyItem[]; meta: { page: number; totalPages: number } }>(
+      `${APP_CONFIG.publicApiUrl}/public/technology-interests`,
+      { params },
+    );
+  }
+  publicStreams() {
+    return this.http.get<ContentStream[]>(`${APP_CONFIG.publicApiUrl}/public/content-streams`);
+  }
   radar(
     filters: {
       stream?: string[];
       technology?: string[];
       interest?: string[];
       saved?: boolean;
+      dateFrom?: string;
+      dateTo?: string;
     } = {},
   ) {
     let params = new HttpParams();
@@ -83,15 +98,35 @@ export class FrontendApiService {
     for (const value of filters.technology ?? []) params = params.append('technology', value);
     for (const value of filters.interest ?? []) params = params.append('interest', value);
     if (filters.saved) params = params.set('saved', true);
+    if (filters.dateFrom) params = params.set('dateFrom', filters.dateFrom);
+    if (filters.dateTo) params = params.set('dateTo', filters.dateTo);
     return this.http.get<FeedResponse>(`${this.api}/feed`, { params });
   }
-  publicFeed() {
+  publicFeed(filters: { page?: number; limit?: number; dateFrom?: string; dateTo?: string } = {}) {
+    let params = new HttpParams().set('page', filters.page ?? 1).set('limit', filters.limit ?? 100);
+    if (filters.dateFrom) params = params.set('dateFrom', filters.dateFrom);
+    if (filters.dateTo) params = params.set('dateTo', filters.dateTo);
     return this.http.get<PublicFeedResponse>(`${APP_CONFIG.publicApiUrl}/public/feed`, {
-      params: { page: 1, limit: 100 },
+      params,
     });
   }
-  preview(body: { technologyInterestIds: string[]; contentStreamIds: string[] }) {
+  preview(body: {
+    technologyInterestIds: string[];
+    contentStreamIds: string[];
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
     return this.http.post<PreviewFeedResponse>(`${APP_CONFIG.publicApiUrl}/feed/preview`, body);
+  }
+  infoPages() {
+    return this.http
+      .get<{ data: InfoPageListItem[] }>(`${APP_CONFIG.publicApiUrl}/info-pages`, {
+        params: { page: 1, limit: 20 },
+      })
+      .pipe(map((response) => response.data));
+  }
+  infoPage(id: string) {
+    return this.http.get<InfoPage>(`${APP_CONFIG.publicApiUrl}/info-pages/${id}`);
   }
   publicSignal(id: string) {
     return this.http.get<PublicSignal>(`${APP_CONFIG.publicApiUrl}/signals/${id}`);

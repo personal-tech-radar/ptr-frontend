@@ -25,6 +25,16 @@ export const authGuard: CanActivateFn = (_route, state) => {
   );
 };
 
+export const registerGuard: CanActivateFn = () => {
+  if (isPlatformServer(inject(PLATFORM_ID))) return true;
+  const session = inject(AuthSessionService);
+  const router = inject(Router);
+  return session.restore().pipe(
+    map((user) => (user ? router.createUrlTree(['/profile']) : true)),
+    catchError(() => of(true)),
+  );
+};
+
 export function safeReturnUrl(value: string | null): string {
   return value?.startsWith('/') && !value.startsWith('//') ? value : '/radar';
 }

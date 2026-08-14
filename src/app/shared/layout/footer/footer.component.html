@@ -1,8 +1,14 @@
 <footer class="container">
-  <div class="rule"></div>
+  @if (divider()) {
+    <div class="rule"></div>
+  }
   <div class="links">
-    <span>Legal Notice</span><span>·</span><span>Privacy Policy</span><span>·</span
-    ><span>Cookies Policy</span>
+    @for (page of pages$ | async; track page.id; let last = $last) {
+      <a [routerLink]="['/info', page.id]">{{ page.title }}</a>
+      @if (!last) {
+        <span>·</span>
+      }
+    }
   </div>
   <div class="links">
     <a href="mailto:miter.sidorov@personalradar.dev">miter.sidorov&#64;personalradar.dev</a

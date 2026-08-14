@@ -1,7 +1,7 @@
 import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { debounceTime, finalize, Subject, switchMap } from 'rxjs';
+import { debounceTime, finalize, map, Subject, switchMap } from 'rxjs';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, TaxonomyItem, TaxonomyKind } from '../../core/models/api.models';
@@ -84,11 +84,14 @@ export class OnboardingPageComponent {
     this.queries
       .pipe(
         debounceTime(200),
-        switchMap((v) => this.api.taxonomy(v.kind, v.q)),
+        switchMap((request) =>
+          this.api
+            .taxonomy(request.kind, request.q)
+            .pipe(map((items) => ({ kind: request.kind, items }))),
+        ),
       )
       .subscribe({
-        next: (items) => {
-          const kind = items[0]?.kind;
+        next: ({ kind, items }) => {
           if (kind === 'interest') this.interestItems.set(items);
           else this.technologyItems.set(items);
         },

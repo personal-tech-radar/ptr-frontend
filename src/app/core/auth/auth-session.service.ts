@@ -26,6 +26,11 @@ export class AuthSessionService {
     );
   }
 
+  acceptRegistration(tokens: AuthTokens): User {
+    this.accept(tokens);
+    return tokens.user;
+  }
+
   restore(): Observable<User | null> {
     if (this.currentUser()) return of(this.currentUser());
     return this.refresh().pipe(map((token) => (token ? this.currentUser() : null)));

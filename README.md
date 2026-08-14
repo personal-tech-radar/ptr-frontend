@@ -76,5 +76,14 @@ Access tokens live in application memory. Rotating refresh tokens are held in br
 - `/register`, `/login`, `/verify-email`, `/forgot-password`, `/reset-password`
 - `/onboarding`, `/radar`, `/profile` (authenticated)
 - `/signals/:id` public SSR signal page
+- `/info/:id` public SSR information page linked from the footer
 
 SSR host validation currently allows `localhost` and `127.0.0.1`. Add each deployed public hostname to `projects.ptr-frontend.architect.build.options.security.allowedHosts` during deployment configuration; do not use a wildcard in production.
+
+## Email verification links
+
+Verification emails must link to the frontend callback, not directly to the backend:
+
+`http://localhost:4000/auth/verify-email?token=<verification-token>`
+
+Set the backend `APP_URL` to the public frontend origin. Its generated `/auth/verify-email?token=...` link lands on this SSR-safe frontend callback, which consumes the token through `GET /auth/verify-email`, refreshes the registered user's session state, and continues to `/onboarding`. `/verify-email?token=...` remains available as a compatibility alias.

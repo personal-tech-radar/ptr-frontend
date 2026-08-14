@@ -143,14 +143,16 @@
             <app-ide-filter-popup
               title="Date"
               [searchable]="false"
-              [options]="dateOptions"
+              [options]="dateOptions()"
               [selectedIds]="selectedDateIds()"
-              (toggled)="openFilter.set(null)"
+              (toggled)="selectDate($event)"
               (closed)="openFilter.set(null)"
             />
           }
         </div>
-        <p><strong>Today</strong></p>
+        <p>
+          <strong>{{ selectedDateLabel() }}</strong>
+        </p>
       </div>
     </div>
     @if (loading()) {
@@ -173,12 +175,25 @@
         </section>
       }
     }
-    <app-date-navigation [labels]="timelineLabels" [active]="6" [disabled]="true" />
+    <app-date-navigation
+      [labels]="timelineLabels()"
+      [active]="dates().indexOf(selectedDate())"
+      (selected)="selectDate(dates()[$event])"
+      (previous)="shiftDates(-7)"
+      (next)="shiftDates(7)"
+    />
     <section class="pipeline">
       <p>Pipeline · Last 24h</p>
       <div>
-        <span><b>540</b> active sources</span><span><b>5,324</b> articles collected</span
-        ><span><b>3,245</b> articles analyzed</span><span><b>256</b> selected for your radar</span>
+        <span
+          ><b>{{ statistics()?.activeSources ?? '—' }}</b> active sources</span
+        ><span
+          ><b>{{ statistics()?.articlesCollected ?? '—' }}</b> articles collected</span
+        ><span
+          ><b>{{ statistics()?.articlesAnalyzed ?? '—' }}</b> articles analyzed</span
+        ><span
+          ><b>{{ statistics()?.selectedForRadar ?? '—' }}</b> selected for your radar</span
+        >
       </div>
     </section>
   </section>
@@ -209,16 +224,6 @@
         </form>
       </div>
     </section>
-    <footer class="container">
-      <div>
-        <span>Legal Notice</span><span>·</span><span>Privacy Policy</span><span>·</span
-        ><span>Cookies Policy</span>
-      </div>
-      <div>
-        <a href="mailto:miter.sidorov@personalradar.dev">miter.sidorov&#64;personalradar.dev</a
-        ><span>·</span><span>GitHub</span><span>·</span><span>LinkedIn</span>
-      </div>
-      <span>© 2026 Personal Tech Radar. All rights reserved.</span>
-    </footer>
+    <app-footer [divider]="false" />
   </div>
 </div>

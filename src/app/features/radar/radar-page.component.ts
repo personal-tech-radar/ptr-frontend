@@ -10,16 +10,16 @@ import {
 } from '@angular/core';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { PublicFilterOption, SignalItem } from '../../core/models/api.models';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { FeedSkeletonComponent } from '../../shared/components/feed-skeleton/feed-skeleton.component';
 import { SignalCardComponent } from '../../shared/components/signal-card/signal-card.component';
 import {
   DateNavigationComponent,
   buildRecentDateLabels,
+  buildRecentDates,
 } from '../../shared/components/date-navigation/date-navigation.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
-import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popup/ide-filter-popup.component';
 
 @Component({
   selector: 'app-radar-page',
@@ -29,7 +29,6 @@ import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popu
     DateNavigationComponent,
     HeaderComponent,
     FooterComponent,
-    IdeFilterPopupComponent,
   ],
   templateUrl: './radar-page.component.html',
   styleUrl: './radar-page.component.scss',
@@ -37,11 +36,11 @@ import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popu
 })
 export class RadarPageComponent {
   private readonly api = inject(FrontendApiService);
+  private readonly streamByArticle = new Map<string, { id: string; name: string } | undefined>();
   readonly loading = signal(true);
   readonly error = signal('');
   readonly signals = signal<SignalItem[]>([]);
   readonly pending = signal<string | null>(null);
-  readonly openFilter = signal<'technology' | 'interest' | 'stream' | null>(null);
   readonly technologyOptions = signal<PublicFilterOption[]>([]);
   readonly interestOptions = signal<PublicFilterOption[]>([]);
   readonly streamOptions = signal<PublicFilterOption[]>([]);
@@ -49,11 +48,15 @@ export class RadarPageComponent {
   readonly selectedInterestIds = signal<string[]>([]);
   readonly selectedStreamKeys = signal<string[]>([]);
   readonly savedOnly = signal(false);
-  readonly timelineLabels = buildRecentDateLabels();
+  readonly dates = signal(buildRecentDates());
+  readonly selectedDate = signal(this.dates()[6]);
+  readonly timelineLabels = computed(() =>
+    buildRecentDateLabels(new Date(`${this.dates()[6]}T12:00:00Z`)),
+  );
   readonly groups = computed(() => {
     const grouped = new Map<string, SignalItem[]>();
     for (const item of this.signals()) {
-      const name = item.materialType ?? 'Signals';
+      const name = item.streamName ?? item.materialType ?? 'Signals';
       grouped.set(name, [...(grouped.get(name) ?? []), item]);
     }
     return [...grouped.entries()].map(([name, items]) => ({ name, items }));
@@ -65,7 +68,10 @@ export class RadarPageComponent {
     });
   }
   initialize(): void {
-    forkJoin({ taxonomy: this.api.userTaxonomy(), streams: this.api.streams() }).subscribe({
+    forkJoin({
+      taxonomy: this.api.userTaxonomy(),
+      streams: this.api.streams(),
+    }).subscribe({
       next: ({ taxonomy, streams }) => {
         const technologies = taxonomy.technologyInterests.filter(
           (item) => item.kind === 'technology',
@@ -77,33 +83,76 @@ export class RadarPageComponent {
         this.selectedTechnologyIds.set(technologies.map((item) => item.id));
         this.selectedInterestIds.set(interests.map((item) => item.id));
         this.selectedStreamKeys.set(taxonomy.contentStreams.map((stream) => stream.key));
-        this.load();
+        this.load(true);
       },
       error: () => this.load(),
     });
   }
-  load(): void {
+  load(initial = false): void {
     this.loading.set(true);
-    this.api
-      .radar(
+    this.error.set('');
+    forkJoin({
+      feed: this.api.radar(
         this.savedOnly()
-          ? { saved: true }
-          : {
-              stream: this.selectedStreamKeys(),
-              technology: this.selectedTechnologyIds(),
-              interest: this.selectedInterestIds(),
-            },
-      )
-      .subscribe({
-        next: (r) => {
-          this.signals.set((r.days ?? []).flatMap((d) => d.articles));
-          this.loading.set(false);
-        },
-        error: () => {
-          this.error.set('Your radar could not be loaded. Try again shortly.');
-          this.loading.set(false);
-        },
-      });
+          ? { saved: true, dateFrom: this.selectedDate(), dateTo: this.selectedDate() }
+          : initial
+            ? { dateFrom: this.selectedDate(), dateTo: this.selectedDate() }
+            : {
+                stream: this.selectedStreamKeys(),
+                technology: this.selectedTechnologyIds(),
+                interest: this.selectedInterestIds(),
+                dateFrom: this.selectedDate(),
+                dateTo: this.selectedDate(),
+              },
+      ),
+      publicFeed: this.api
+        .publicFeed({ dateFrom: this.selectedDate(), dateTo: this.selectedDate() })
+        .pipe(
+          catchError(() =>
+            of({ data: [], meta: { total: 0, page: 1, limit: 100, totalPages: 0 } }),
+          ),
+        ),
+    }).subscribe({
+      next: ({ feed, publicFeed }) => {
+        publicFeed.data.forEach((signal) =>
+          this.streamByArticle.set(
+            signal.articleId ?? signal.id,
+            signal.primaryStream ?? signal.streams[0],
+          ),
+        );
+        this.signals.set(
+          (feed.days ?? [])
+            .flatMap((d) => d.articles)
+            .map((item) => {
+              const stream = this.streamByArticle.get(item.articleId);
+              return stream ? { ...item, streamId: stream.id, streamName: stream.name } : item;
+            }),
+        );
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Your radar could not be loaded. Try again shortly.');
+        this.loading.set(false);
+      },
+    });
+  }
+  toggleAll(kind: 'technology' | 'interest'): void {
+    const target = kind === 'technology' ? this.selectedTechnologyIds : this.selectedInterestIds;
+    const options = kind === 'technology' ? this.technologyOptions() : this.interestOptions();
+    target.set(target().length ? [] : options.map((option) => option.id));
+    this.savedOnly.set(false);
+    this.load();
+  }
+  selectDate(index: number): void {
+    this.selectedDate.set(this.dates()[index]);
+    this.load();
+  }
+  shiftDates(days: number): void {
+    const end = new Date(`${this.dates()[6]}T12:00:00Z`);
+    end.setUTCDate(end.getUTCDate() + days);
+    if (end > new Date(`${buildRecentDates()[6]}T12:00:00Z`)) return;
+    this.dates.set(buildRecentDates(end));
+    this.selectDate(6);
   }
   toggleFilter(kind: 'technology' | 'interest' | 'stream', id: string): void {
     const target =

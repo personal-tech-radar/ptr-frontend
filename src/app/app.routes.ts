@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { authGuard, registerGuard } from './core/auth/auth.guard';
 import { signalResolver } from './features/signals/signal.resolver';
+import { infoPageResolver } from './features/info/info-page.resolver';
 
 const authPage = () =>
   import('./features/auth/auth-page.component').then((m) => m.AuthPageComponent);
@@ -23,6 +24,7 @@ export const routes: Routes = [
     path: 'register',
     title: 'Register — Personal Tech Radar',
     data: { mode: 'register' },
+    canActivate: [registerGuard],
     loadComponent: authPage,
   },
   {
@@ -42,6 +44,18 @@ export const routes: Routes = [
     title: 'Verify email — Personal Tech Radar',
     loadComponent: () =>
       import('./features/auth/verify-email-page.component').then((m) => m.VerifyEmailPageComponent),
+  },
+  {
+    path: 'auth/verify-email',
+    title: 'Verify email — Personal Tech Radar',
+    loadComponent: () =>
+      import('./features/auth/verify-email-page.component').then((m) => m.VerifyEmailPageComponent),
+  },
+  {
+    path: 'auth/password/reset',
+    title: 'Reset password — Personal Tech Radar',
+    data: { mode: 'reset-password' },
+    loadComponent: authPage,
   },
   {
     path: 'onboarding',
@@ -72,6 +86,13 @@ export const routes: Routes = [
     resolve: { signal: signalResolver },
     loadComponent: () =>
       import('./features/signals/signal-page.component').then((m) => m.SignalPageComponent),
+  },
+  {
+    path: 'info/:id',
+    data: { index: true },
+    resolve: { page: infoPageResolver },
+    loadComponent: () =>
+      import('./features/info/info-page.component').then((m) => m.InfoPageComponent),
   },
   {
     path: '**',

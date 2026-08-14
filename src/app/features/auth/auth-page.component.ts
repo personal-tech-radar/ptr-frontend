@@ -129,7 +129,7 @@ export class AuthPageComponent {
                 password,
               );
     request.pipe(finalize(() => this.pending.set(false))).subscribe({
-      next: () => {
+      next: (result) => {
         if (this.mode === 'login') {
           this.api.me().subscribe({
             next: (user) => {
@@ -144,8 +144,10 @@ export class AuthPageComponent {
             },
             error: (error: unknown) => this.error.set(mapApiError(error).message),
           });
-        } else if (this.mode === 'register' || this.mode === 'forgot-password')
+        } else if (this.mode === 'register') {
+          this.auth.acceptRegistration(result as import('../../core/models/api.models').AuthTokens);
           this.success.set(true);
+        } else if (this.mode === 'forgot-password') this.success.set(true);
         else {
           this.success.set(true);
           setTimeout(() => void this.router.navigate(['/login']), 1200);

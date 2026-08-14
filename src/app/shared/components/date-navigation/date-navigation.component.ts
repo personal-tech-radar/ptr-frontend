@@ -11,6 +11,16 @@ export class DateNavigationComponent {
   readonly active = input(0);
   readonly disabled = input(false);
   readonly selected = output<number>();
+  readonly previous = output<void>();
+  readonly next = output<void>();
+}
+
+export function buildRecentDates(now = new Date()): string[] {
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(now);
+    date.setUTCDate(now.getUTCDate() - (6 - index));
+    return date.toISOString().slice(0, 10);
+  });
 }
 
 export function buildRecentDateLabels(now = new Date()): string[] {

@@ -24,7 +24,9 @@
       ><button [class.active]="tab() === 'digest'" type="button" (click)="tab.set('digest')">
         {{ tab() === 'digest' ? '[>]' : '[ ]' }} Digest</button
       ><button [class.active]="tab() === 'security'" type="button" (click)="tab.set('security')">
-        {{ tab() === 'security' ? '[>]' : '[ ]' }} Security
+        {{ tab() === 'security' ? '[>]' : '[ ]' }} Security</button
+      ><button [class.active]="tab() === 'danger'" type="button" (click)="tab.set('danger')">
+        {{ tab() === 'danger' ? '[>]' : '[ ]' }} Danger Zone
       </button>
     </nav>
     @if (notice()) {
@@ -94,7 +96,7 @@
       @if (tab() === 'streams') {
         <div class="section-label">Content streams</div>
         <p>Streams group the radar into sections. Turn off anything you never read.</p>
-        <div class="choice-list">
+        <div class="stream-picker">
           @for (stream of streams(); track stream.id) {
             <button
               type="button"
@@ -102,6 +104,9 @@
               (click)="toggleStream(stream.id)"
             >
               {{ selectedStreamIds().includes(stream.id) ? '[×]' : '[ ]' }} {{ stream.name }}
+              @if (stream.description) {
+                <small>{{ stream.description }}</small>
+              }
             </button>
           }
         </div>
@@ -139,27 +144,46 @@
             >
           </button>
         </div>
+        @if (
+          !profile.controls.dailyDigestEnabled.value && !profile.controls.weeklyDigestEnabled.value
+        ) {
+          <p class="digest-warning">
+            ! with neither selected the radar stays on-site only — nothing is emailed to you
+          </p>
+        }
       }
       @if (tab() === 'security') {
-        <div class="section-label danger-label">Danger zone</div>
+        <div class="section-label">Security</div>
         <p>Changing the password signs out every other session immediately.</p>
-        <form class="form-column" [formGroup]="password" (ngSubmit)="changePassword()">
+        <form
+          class="form-column security-form"
+          [formGroup]="password"
+          (ngSubmit)="changePassword()"
+        >
           <label for="current">Current password</label
           ><input id="current" type="password" formControlName="currentPassword" /><label for="new"
             >New password</label
-          ><input id="new" type="password" formControlName="newPassword" /><button
-            class="save"
-            [disabled]="pending()"
-          >
-            Change password
-          </button>
+          ><input id="new" type="password" formControlName="newPassword" />
+          <label for="repeat">Repeat new password</label
+          ><input id="repeat" type="password" formControlName="repeatPassword" />
+          @if (
+            password.controls.repeatPassword.touched &&
+            password.controls.repeatPassword.value !== password.controls.newPassword.value
+          ) {
+            <span class="field-error">! passwords do not match</span>
+          }
+          <button class="save" [disabled]="pending()">Change password</button>
         </form>
+      }
+      @if (tab() === 'danger') {
+        <div class="section-label danger-label">Danger zone</div>
+        <p>Permanently delete your account, profile, saved signals and delivery preferences.</p>
         <div class="delete">
           <button type="button" (click)="deleteAccount()">Delete account</button>
         </div>
       }
     </section>
-    @if (tab() !== 'security') {
+    @if (tab() !== 'security' && tab() !== 'danger') {
       <div class="save-row">
         <button class="save" type="button" [disabled]="pending()" (click)="save()">
           Save changes
@@ -167,5 +191,5 @@
       </div>
     }
   </main>
-  <app-footer />
+  <app-footer [divider]="false" />
 </div>

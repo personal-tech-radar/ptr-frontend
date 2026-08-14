@@ -55,8 +55,15 @@ export class VerifyEmailPageComponent {
     }
     this.api.verifyEmail(token).subscribe({
       next: () => {
-        if (this.auth.authenticated()) void this.router.navigate(['/onboarding']);
-        else {
+        if (this.auth.authenticated()) {
+          this.api.me().subscribe({
+            next: (user) => {
+              this.auth.updateUser(user);
+              void this.router.navigate(['/onboarding']);
+            },
+            error: () => void this.router.navigate(['/onboarding']),
+          });
+        } else {
           this.message.set('Email verified. You can now sign in.');
           this.done.set(true);
         }

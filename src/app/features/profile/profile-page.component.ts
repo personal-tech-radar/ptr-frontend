@@ -33,9 +33,9 @@ export class ProfilePageComponent {
   private readonly router = inject(Router);
   readonly pending = signal(false);
   readonly notice = signal('');
-  readonly tab = signal<'profile' | 'tech' | 'interests' | 'streams' | 'digest' | 'security'>(
-    'profile',
-  );
+  readonly tab = signal<
+    'profile' | 'tech' | 'interests' | 'streams' | 'digest' | 'security' | 'danger'
+  >('profile');
   readonly streams = signal<ContentStream[]>([]);
   readonly technologyItems = signal<TaxonomyItem[]>([]);
   readonly interestItems = signal<TaxonomyItem[]>([]);
@@ -74,6 +74,7 @@ export class ProfilePageComponent {
   readonly password = this.fb.nonNullable.group({
     currentPassword: ['', [Validators.required]],
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    repeatPassword: ['', [Validators.required]],
   });
   constructor() {
     afterNextRender(() => this.loadProfile());
@@ -154,7 +155,13 @@ export class ProfilePageComponent {
       });
   }
   changePassword(): void {
-    if (this.password.invalid) return;
+    if (
+      this.password.invalid ||
+      this.password.controls.newPassword.value !== this.password.controls.repeatPassword.value
+    ) {
+      this.password.markAllAsTouched();
+      return;
+    }
     this.pending.set(true);
     const v = this.password.getRawValue();
     this.api

@@ -78,6 +78,14 @@ export interface FeedResponse {
   days: SignalDayGroup[];
 }
 
+export interface PipelineStatistics {
+  period: string;
+  activeSources: number;
+  articlesCollected: number;
+  articlesAnalyzed: number;
+  selectedForRadar: number | null;
+}
+
 export interface PublicSignal {
   id: string;
   articleId?: string;
@@ -110,6 +118,19 @@ export interface PublicFeedResponse {
 
 export interface PreviewFeedResponse {
   data: SignalItem[];
+  meta: PipelineStatistics;
+}
+
+export interface InfoPageListItem {
+  id: string;
+  title: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InfoPage extends InfoPageListItem {
+  fullText: string;
 }
 
 export interface PublicFilterOption {

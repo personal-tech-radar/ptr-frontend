@@ -22,9 +22,6 @@
                 Resend the validation link
               </button>
             </div>
-            <a class="submit" routerLink="/login" [queryParams]="{ returnUrl: '/onboarding' }"
-              >I confirmed it — set up my radar</a
-            >
           } @else if (mode === 'forgot-password') {
             <div class="section-label">Reset link sent</div>
             <p>
