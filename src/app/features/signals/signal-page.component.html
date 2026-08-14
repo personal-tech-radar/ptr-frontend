@@ -9,8 +9,8 @@
           <div>
             Technologies:
             <span>
-              @for (item of signal.technologies; track item.id) {
-                {{ item.name }} ·
+              @for (item of signal.technologies; track item.id; let last = $last) {
+                {{ item.name }}{{ last ? '' : ' · ' }}
               }
             </span>
           </div>
@@ -19,8 +19,8 @@
           <div>
             Interests:
             <span>
-              @for (item of signal.interests; track item.id) {
-                {{ item.name }} ·
+              @for (item of signal.interests; track item.id; let last = $last) {
+                {{ item.name }}{{ last ? '' : ' · ' }}
               }
             </span>
           </div>
