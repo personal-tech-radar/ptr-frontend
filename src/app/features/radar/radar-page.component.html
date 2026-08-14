@@ -139,33 +139,35 @@
         </p>
       </div>
     </section>
-    @if (loading()) {
-      <app-feed-skeleton />
-    } @else if (error()) {
-      <div class="empty">{{ error() }}</div>
-    } @else if (!signals().length) {
-      <div class="empty">No signals match your current filters.</div>
-    } @else {
-      @for (group of groups(); track group.name) {
-        <section class="signal-group">
-          <header>
-            <span>§</span>
-            <h3>{{ group.name }}</h3>
-            <i></i><small>{{ group.items.length }}</small>
-          </header>
-          @for (item of group.items; track item.articleId) {
-            <app-signal-card
-              [signal]="item"
-              [actions]="true"
-              [pending]="pending() === item.articleId"
-              [saveConfirmed]="saveConfirmations().includes(item.articleId)"
-              (save)="save(item)"
-              (feedback)="feedback(item, $event)"
-            />
-          }
-        </section>
+    <div class="feed-stage">
+      @if (loading()) {
+        <app-feed-skeleton />
+      } @else if (error()) {
+        <div class="empty">{{ error() }}</div>
+      } @else if (!signals().length) {
+        <div class="empty">No signals match your current filters.</div>
+      } @else {
+        @for (group of groups(); track group.name) {
+          <section class="signal-group">
+            <header>
+              <span>§</span>
+              <h3>{{ group.name }}</h3>
+              <i></i><small>{{ group.items.length }}</small>
+            </header>
+            @for (item of group.items; track item.articleId) {
+              <app-signal-card
+                [signal]="item"
+                [actions]="true"
+                [pending]="pending() === item.articleId"
+                [saveConfirmed]="saveConfirmations().includes(item.articleId)"
+                (save)="save(item)"
+                (feedback)="feedback(item, $event)"
+              />
+            }
+          </section>
+        }
       }
-    }
+    </div>
     <app-date-navigation
       [labels]="timelineLabels()"
       [active]="dates().indexOf(selectedDate())"

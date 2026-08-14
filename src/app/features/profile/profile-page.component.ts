@@ -186,7 +186,6 @@ export class ProfilePageComponent {
       });
   }
   profileSaveLabel(): string {
-    if (this.pending()) return 'Saving…';
     if (this.profileSaveState() === 'saved') return 'Saved successfully';
     if (this.profileSaveState() === 'error') return 'Save failed — try again';
     return 'Save changes';

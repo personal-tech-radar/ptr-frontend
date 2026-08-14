@@ -5,22 +5,26 @@
       <h1>{{ signal.title }}</h1>
       <div class="metadata">
         <div>{{ signal.publishedAt ? signal.publishedAt.slice(0, 10) : '' }}</div>
-        <div>
-          Technologies:
-          <span>
-            @for (item of signal.technologies; track item.id) {
-              {{ item.name }} ·
-            }
-          </span>
-        </div>
-        <div>
-          Interests:
-          <span>
-            @for (item of signal.interests; track item.id) {
-              {{ item.name }} ·
-            }
-          </span>
-        </div>
+        @if (signal.technologies.length) {
+          <div>
+            Technologies:
+            <span>
+              @for (item of signal.technologies; track item.id) {
+                {{ item.name }} ·
+              }
+            </span>
+          </div>
+        }
+        @if (signal.interests.length) {
+          <div>
+            Interests:
+            <span>
+              @for (item of signal.interests; track item.id) {
+                {{ item.name }} ·
+              }
+            </span>
+          </div>
+        }
       </div>
       <div class="summary">
         <p>{{ signal.summary }}</p>

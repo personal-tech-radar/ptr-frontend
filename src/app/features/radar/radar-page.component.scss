@@ -2,6 +2,9 @@
   display: flex;
   flex-direction: column;
 }
+.radar-page::after {
+  position: fixed;
+}
 .radar {
   position: relative;
   z-index: 1;
@@ -16,6 +19,10 @@
   border: 1px solid var(--ptr-line);
   padding: 22px 24px;
   margin-bottom: 28px;
+  min-block-size: 9rem;
+}
+.feed-stage {
+  min-block-size: 68rem;
 }
 .filter-column,
 .filter-trigger {
@@ -133,5 +140,9 @@
   .filters {
     grid-template-columns: 1fr;
     padding: 20px;
+    min-block-size: 28rem;
+  }
+  .feed-stage {
+    min-block-size: 78rem;
   }
 }

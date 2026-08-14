@@ -1,12 +1,14 @@
 <div class="selector">
-  <label [for]="label() + '-search'" class="sr-only">{{ label() }}</label>
-  <input
-    [id]="label() + '-search'"
-    type="search"
-    [ngModel]="query()"
-    (ngModelChange)="query.set($event)"
-    [placeholder]="placeholder()"
-  />
+  @if (searchable()) {
+    <label [for]="label() + '-search'" class="sr-only">{{ label() }}</label>
+    <input
+      [id]="label() + '-search'"
+      type="search"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+      [placeholder]="placeholder()"
+    />
+  }
   <div class="option-frame" role="listbox" [attr.aria-label]="label()" aria-multiselectable="true">
     @for (option of filtered(); track option.id) {
       <button
@@ -21,12 +23,14 @@
       <p>No matches in the index</p>
     }
   </div>
-  <div class="selected-label">Selected · {{ selectedIds().length }}</div>
-  <div class="chips">
-    @for (option of selectedOptions(); track option.id) {
-      <button type="button" (click)="toggled.emit(option.id)">[×] {{ option.name }}</button>
-    } @empty {
-      <span>nothing selected yet</span>
-    }
-  </div>
+  @if (showSelectionSummary()) {
+    <div class="selected-label">Selected · {{ selectedIds().length }}</div>
+    <div class="chips">
+      @for (option of selectedOptions(); track option.id) {
+        <button type="button" (click)="toggled.emit(option.id)">[×] {{ option.name }}</button>
+      } @empty {
+        <span>nothing selected yet</span>
+      }
+    </div>
+  }
 </div>

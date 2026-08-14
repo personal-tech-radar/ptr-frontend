@@ -1,5 +1,13 @@
 <div class="skeleton" aria-label="Loading radar" aria-busy="true">
-  @for (item of [1, 2, 3, 4]; track item) {
-    <div class="row"><span></span><span></span><span></span></div>
+  @for (group of [1, 2, 3]; track group) {
+    <section class="group">
+      <div class="group-heading"><span></span><i></i><small></small></div>
+      @for (item of [1]; track item) {
+        <div class="row">
+          <span class="title"></span><span class="source"></span><span class="summary"></span>
+          <div class="actions"><span></span><span></span><span></span></div>
+        </div>
+      }
+    </section>
   }
 </div>

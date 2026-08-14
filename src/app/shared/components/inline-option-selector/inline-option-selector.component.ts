@@ -12,6 +12,8 @@ import { PublicFilterOption } from '../../../core/models/api.models';
 export class InlineOptionSelectorComponent {
   readonly label = input.required<string>();
   readonly placeholder = input.required<string>();
+  readonly searchable = input(true);
+  readonly showSelectionSummary = input(true);
   readonly options = input<PublicFilterOption[]>([]);
   readonly selectedIds = input<string[]>([]);
   readonly toggled = output<string>();
