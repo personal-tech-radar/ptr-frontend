@@ -22,26 +22,134 @@
       Once you subscribe, you'll be able to add your own interests, technologies and sources.
     </p>
     <div class="filters">
-      <div>
-        <button type="button">Technology <small>▾</small></button>
+      @if (openFilter()) {
+        <button
+          class="filter-backdrop"
+          type="button"
+          aria-label="Close filters"
+          (click)="openFilter.set(null)"
+        ></button>
+      }
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'technology'"
+            (click)="toggleOpen('technology')"
+          >
+            Technology <small>▾</small>
+          </button>
+          @if (openFilter() === 'technology') {
+            <app-ide-filter-popup
+              title="Technology"
+              [options]="technologies()"
+              [selectedIds]="selectedTechnologyIds()"
+              (toggled)="toggleSelection('technology', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p>
-          <span>[×] Node.js</span><span>[×] NestJS</span><span>[×] PostgreSQL</span
-          ><span>[×] AI Agents</span>
+          @for (option of selectedOptions('technology'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('technology', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
         </p>
       </div>
-      <div>
-        <button type="button">Interests <small>▾</small></button>
-        <p><span>[×] Architecture</span><span>[×] Backend</span><span>[×] DevOps</span></p>
-      </div>
-      <div>
-        <button type="button">Streams <small>▾</small></button>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'interest'"
+            (click)="toggleOpen('interest')"
+          >
+            Interests <small>▾</small>
+          </button>
+          @if (openFilter() === 'interest') {
+            <app-ide-filter-popup
+              title="Interests"
+              [options]="interests()"
+              [selectedIds]="selectedInterestIds()"
+              (toggled)="toggleSelection('interest', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p>
-          <span>[×] Engineering Blogs</span><span>[×] Releases</span><span>[×] Vulnerabilities</span
-          ><span>[×] Expert Opinions</span>
+          @for (option of selectedOptions('interest'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('interest', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
         </p>
       </div>
-      <div>
-        <button type="button">Date <small>▾</small></button>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'stream'"
+            (click)="toggleOpen('stream')"
+          >
+            Streams <small>▾</small>
+          </button>
+          @if (openFilter() === 'stream') {
+            <app-ide-filter-popup
+              title="Streams"
+              [searchable]="false"
+              [options]="streams()"
+              [selectedIds]="selectedStreamIds()"
+              (toggled)="toggleSelection('stream', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
+        <p>
+          @for (option of selectedOptions('stream'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('stream', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'date'"
+            (click)="toggleOpen('date')"
+          >
+            Date <small>▾</small>
+          </button>
+          @if (openFilter() === 'date') {
+            <app-ide-filter-popup
+              title="Date"
+              [searchable]="false"
+              [options]="dateOptions"
+              [selectedIds]="selectedDateIds()"
+              (toggled)="openFilter.set(null)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p><strong>Today</strong></p>
       </div>
     </div>
@@ -65,11 +173,7 @@
         </section>
       }
     }
-    <app-date-navigation
-      [labels]="['Wed 08', 'Thu 09', 'Fri 10', 'Sat 11', 'Sun 12', 'Mon 13', 'Today']"
-      [active]="6"
-      [disabled]="true"
-    />
+    <app-date-navigation [labels]="timelineLabels" [active]="6" [disabled]="true" />
     <section class="pipeline">
       <p>Pipeline · Last 24h</p>
       <div>

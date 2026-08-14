@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "visual:compare": "node scripts/visual-compare.mjs",
+    "smoke:interactive": "node scripts/interactive-smoke.mjs",
     "serve:ssr:ptr-frontend": "node dist/ptr-frontend/server/server.mjs"
   },
   "dependencies": {

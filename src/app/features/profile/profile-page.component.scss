@@ -15,6 +15,18 @@
   font-weight: 600;
   margin: 0 0 10px;
 }
+.profile-identity {
+  display: flex;
+  gap: 18px;
+  margin-block-end: 32px;
+  font-size: 12.5px;
+}
+.profile-identity span:last-child {
+  color: var(--ptr-cyan);
+}
+.profile-identity + nav {
+  margin-block-start: 0;
+}
 .profile > nav {
   display: flex;
   gap: 18px;

@@ -8,6 +8,7 @@
   flex: 1;
 }
 .filters {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 22px;
@@ -16,15 +17,26 @@
   padding: 22px 24px;
   margin-bottom: 28px;
 }
-.filters h2 {
+.filter-column,
+.filter-trigger {
+  position: relative;
+}
+.filters h2,
+.filter-trigger > button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ptr-steel);
   margin: 0 0 10px;
   font-weight: 400;
+  cursor: pointer;
 }
 .filters h2 span,
+.filter-trigger > button span,
 .filters small {
   color: var(--ptr-muted);
 }
@@ -35,10 +47,23 @@
   margin: 0;
 }
 .filters p span,
+.filters p button,
 .filters strong {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
   font-size: 12.5px;
   color: var(--ptr-orange);
   font-weight: 400;
+  cursor: pointer;
+}
+.filter-backdrop {
+  position: fixed;
+  z-index: 39;
+  inset: 0;
+  border: 0;
+  background: transparent;
 }
 .signal-group {
   margin-bottom: 32px;

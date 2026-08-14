@@ -1,4 +1,4 @@
-<div class="selector">
+<div class="selector" [class.inline]="inline()">
   @if (!inline()) {
     <span class="field-label">{{ label() }} ({{ selected().length }}/{{ max() }})</span>
     <button
@@ -12,11 +12,6 @@
       <span aria-hidden="true">⌄</span>
     </button>
   }
-  <div class="chip-list">
-    @for (item of selected(); track item.name) {
-      <button class="chip" type="button" (click)="choose(item)">{{ item.name }} ×</button>
-    }
-  </div>
   @if (open() || inline()) {
     <section class="popup">
       <input
@@ -28,35 +23,44 @@
         [placeholder]="placeholder()"
         [attr.aria-label]="'Search ' + label()"
       />
-      <div role="listbox" [attr.aria-label]="label()">
-        @if (loading()) {
-          <p class="state">Searching…</p>
-        }
-        @for (item of items(); track item.id) {
-          <button
-            type="button"
-            role="option"
-            [attr.aria-selected]="selected().includes(item)"
-            (click)="choose(item)"
-          >
-            <span>{{ item.name }}</span
-            ><span>{{ selected().includes(item) ? '[x]' : '[ ]' }}</span>
-          </button>
-        }
-        @if (query().trim() && !hasExact()) {
-          <button
-            class="create"
-            type="button"
-            [disabled]="selected().length >= max()"
-            (click)="create()"
-          >
-            + add "{{ query().trim() }}" as your own {{ kind() }}
-          </button>
-        }
-        @if (!loading() && !items().length && !query().trim()) {
-          <p class="state">No matches in the index</p>
-        }
+      <div class="option-frame">
+        <div role="listbox" [attr.aria-label]="label()">
+          @if (loading()) {
+            <p class="state">Searching…</p>
+          }
+          @for (item of items(); track item.id) {
+            <button
+              type="button"
+              role="option"
+              [attr.aria-selected]="isSelected(item)"
+              (click)="choose(item)"
+            >
+              {{ isSelected(item) ? '[×]' : '[ ]' }} {{ item.name }}
+            </button>
+          }
+          @if (!loading() && !items().length) {
+            <p class="state">No matches in the index</p>
+          }
+        </div>
       </div>
+      @if (query().trim() && !hasExact()) {
+        <button
+          class="create"
+          type="button"
+          [disabled]="selected().length >= max()"
+          (click)="create()"
+        >
+          + add "{{ query().trim() }}" as your own {{ kind() }}
+        </button>
+      }
     </section>
   }
+  <div class="selected-label">Selected · {{ selected().length }} / {{ max() }}</div>
+  <div class="chip-list">
+    @for (item of selected(); track item.name) {
+      <button class="chip" type="button" (click)="choose(item)">[×] {{ item.name }}</button>
+    } @empty {
+      <span class="nothing">nothing selected yet</span>
+    }
+  </div>
 </div>

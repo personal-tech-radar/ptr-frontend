@@ -55,6 +55,45 @@ export class AuthPageComponent {
     ],
   });
 
+  emailInvalid(): boolean {
+    const control = this.form.controls.email;
+    return this.mode === 'register' && control.touched && control.invalid;
+  }
+
+  emailMismatch(): boolean {
+    const control = this.form.controls.emailConfirm;
+    return (
+      this.mode === 'register' &&
+      control.touched &&
+      control.value !== this.form.controls.email.value
+    );
+  }
+
+  passwordShort(): boolean {
+    const control = this.form.controls.password;
+    return control.touched && control.hasError('minlength');
+  }
+
+  passwordMismatch(): boolean {
+    const control = this.form.controls.confirmPassword;
+    return (
+      (this.mode === 'register' || this.mode === 'reset-password') &&
+      control.touched &&
+      control.value !== this.form.controls.password.value
+    );
+  }
+
+  submitDisabled(): boolean {
+    return (
+      this.pending() ||
+      this.form.invalid ||
+      (this.mode === 'register' &&
+        this.form.controls.email.value !== this.form.controls.emailConfirm.value) ||
+      ((this.mode === 'register' || this.mode === 'reset-password') &&
+        this.form.controls.password.value !== this.form.controls.confirmPassword.value)
+    );
+  }
+
   submit(): void {
     this.error.set('');
     if (

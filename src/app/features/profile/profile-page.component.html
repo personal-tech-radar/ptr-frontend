@@ -6,6 +6,12 @@
   />
   <main class="container profile">
     <h1>Your profile</h1>
+    @if (auth.user(); as user) {
+      <div class="profile-identity">
+        <span>{{ user.displayName }}</span
+        ><span>{{ user.email }}</span>
+      </div>
+    }
     <nav aria-label="Profile sections">
       <button [class.active]="tab() === 'profile'" type="button" (click)="tab.set('profile')">
         {{ tab() === 'profile' ? '[>]' : '[ ]' }} Profile</button
@@ -36,14 +42,20 @@
           <label for="name">Display name</label
           ><input id="name" formControlName="displayName" /><label for="github"
             >GitHub profile <small>— optional</small></label
-          ><input id="github" formControlName="githubUrl" /><label for="level"
-            >Experience level</label
-          ><select id="level" formControlName="level">
-            <option value="junior">Junior</option>
-            <option value="middle">Mid-level</option>
-            <option value="senior">Senior</option></select
-          ><label for="timezone">Timezone <small>— detected</small></label
-          ><input id="timezone" formControlName="timezone" />
+          ><input id="github" formControlName="githubUrl" />
+          <app-form-select
+            label="Experience level"
+            [value]="profile.controls.level.value"
+            [options]="experienceOptions"
+            (valueChange)="profile.controls.level.setValue($any($event))"
+          />
+          <app-form-select
+            label="Timezone — detected"
+            [searchable]="true"
+            [value]="profile.controls.timezone.value"
+            [options]="timezoneOptions"
+            (valueChange)="profile.controls.timezone.setValue($event)"
+          />
         </form>
       }
       @if (tab() === 'tech') {
@@ -101,16 +113,31 @@
           covers what the daily digests missed.
         </p>
         <p>Pick one or both — you can change the rhythm at any time.</p>
-        <div class="choice-list" [formGroup]="profile">
-          <label
-            ><input type="checkbox" formControlName="dailyDigestEnabled" /> Daily digest<small
-              >One email each morning with everything the radar caught.</small
-            ></label
-          ><label
-            ><input type="checkbox" formControlName="weeklyDigestEnabled" /> Weekly digest<small
-              >A Friday summary of the week — lighter, more editorial.</small
-            ></label
+        <div class="choice-list">
+          <button
+            type="button"
+            (click)="
+              profile.controls.dailyDigestEnabled.setValue(
+                !profile.controls.dailyDigestEnabled.value
+              )
+            "
           >
+            {{ profile.controls.dailyDigestEnabled.value ? '[×]' : '[ ]' }} Daily digest<small
+              >One email each morning with everything the radar caught.</small
+            >
+          </button>
+          <button
+            type="button"
+            (click)="
+              profile.controls.weeklyDigestEnabled.setValue(
+                !profile.controls.weeklyDigestEnabled.value
+              )
+            "
+          >
+            {{ profile.controls.weeklyDigestEnabled.value ? '[×]' : '[ ]' }} Weekly digest<small
+              >A Friday summary of the week — lighter, more editorial.</small
+            >
+          </button>
         </div>
       }
       @if (tab() === 'security') {

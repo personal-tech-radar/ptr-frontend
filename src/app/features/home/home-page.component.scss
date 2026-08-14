@@ -82,6 +82,7 @@
   font-weight: 700;
 }
 .filters {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 22px;
@@ -89,6 +90,19 @@
   border: 1px solid var(--ptr-line);
   padding: 22px 24px;
   margin-bottom: 28px;
+}
+.filter-column,
+.filter-trigger {
+  position: relative;
+}
+.filter-backdrop {
+  position: fixed;
+  z-index: 39;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0 !important;
+  cursor: default !important;
 }
 .filters button {
   display: flex;
@@ -112,6 +126,13 @@
   flex-wrap: wrap;
   gap: 8px;
   margin: 0;
+}
+.filters .selected-chip {
+  margin: 0;
+  color: var(--ptr-orange);
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
 }
 .filters span,
 .filters strong {

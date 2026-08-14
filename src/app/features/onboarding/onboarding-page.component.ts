@@ -6,12 +6,22 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, TaxonomyItem, TaxonomyKind } from '../../core/models/api.models';
 import { TaxonomySelectorComponent } from '../../shared/components/taxonomy-selector/taxonomy-selector.component';
+import {
+  FormSelectComponent,
+  FormSelectOption,
+} from '../../shared/components/form-select/form-select.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [ReactiveFormsModule, TaxonomySelectorComponent, HeaderComponent, FooterComponent],
+  imports: [
+    ReactiveFormsModule,
+    TaxonomySelectorComponent,
+    FormSelectComponent,
+    HeaderComponent,
+    FooterComponent,
+  ],
   templateUrl: './onboarding-page.component.html',
   styleUrl: './onboarding-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,12 +43,42 @@ export class OnboardingPageComponent {
   readonly steps = ['Profile', 'Technologies', 'Interests', 'Streams', 'Digest', 'Review'];
   readonly daily = signal(true);
   readonly weekly = signal(false);
+  readonly experienceOptions: FormSelectOption[] = [
+    { value: 'junior', label: 'Junior' },
+    { value: 'middle', label: 'Mid-level' },
+    { value: 'senior', label: 'Senior' },
+  ];
+  readonly timezoneOptions: FormSelectOption[] = [
+    'UTC',
+    'Europe/Lisbon',
+    'Europe/London',
+    'Europe/Berlin',
+    'Europe/Warsaw',
+    'Europe/Kyiv',
+    'Asia/Dubai',
+    'Asia/Tbilisi',
+    'Asia/Bangkok',
+    'Asia/Tokyo',
+    'America/New_York',
+    'America/Chicago',
+    'America/Los_Angeles',
+    'Australia/Sydney',
+  ].map((value) => ({ value, label: value }));
   readonly form = this.fb.nonNullable.group({
     timezone: [Intl.DateTimeFormat().resolvedOptions().timeZone, [Validators.required]],
     githubUrl: [''],
     level: ['middle' as 'junior' | 'middle' | 'senior', [Validators.required]],
     contentStreamIds: [[] as string[], [Validators.required]],
   });
+  experienceHint(): string {
+    return (
+      {
+        junior: 'Summaries include more context and terminology is spelled out.',
+        middle: 'Balanced detail — the default for most engineers.',
+        senior: 'Terse summaries, more weight on trade-offs and failure modes.',
+      }[this.form.controls.level.value] ?? ''
+    );
+  }
   constructor() {
     afterNextRender(() => this.loadOptions());
     this.queries

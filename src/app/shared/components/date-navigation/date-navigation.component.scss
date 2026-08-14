@@ -17,14 +17,16 @@ nav {
 }
 
 button {
-  min-inline-size: 3.25rem;
-  min-block-size: 2.5rem;
+  min-block-size: 0;
   flex: 1;
   border: 0;
   border-block-end: 2px solid transparent;
   background: none;
   color: var(--ptr-muted);
   cursor: pointer;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
 
   &[aria-current='date'] {
     border-color: var(--ptr-orange);
@@ -33,6 +35,24 @@ button {
 
   &:disabled {
     cursor: default;
-    opacity: 0.65;
+    color: #54555a;
+  }
+}
+.arrow {
+  flex: none;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+@media (max-width: 720px) {
+  nav {
+    padding: 14px 16px;
+  }
+  .days button {
+    min-inline-size: 52px;
+    flex: none;
+    padding: 8px 6px;
+  }
+  .arrow {
+    padding-inline: 4px;
   }
 }

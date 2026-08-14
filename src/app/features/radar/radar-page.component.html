@@ -2,27 +2,106 @@
   <app-header [authenticated]="true" />
   <main class="container radar">
     <section class="filters">
-      <div>
-        <h2>Technology <span>[×]</span></h2>
+      @if (openFilter()) {
+        <button
+          class="filter-backdrop"
+          type="button"
+          aria-label="Close filters"
+          (click)="openFilter.set(null)"
+        ></button>
+      }
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            (click)="openFilter.set(openFilter() === 'technology' ? null : 'technology')"
+          >
+            Technology <span>{{ selectedTechnologyIds().length ? '[-]' : '[+]' }}</span>
+          </button>
+          @if (openFilter() === 'technology') {
+            <app-ide-filter-popup
+              title="Technology"
+              [options]="technologyOptions()"
+              [selectedIds]="selectedTechnologyIds()"
+              (toggled)="toggleFilter('technology', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p>
-          <span>[×] Node.js</span><span>[×] TypeScript</span><span>[×] PostgreSQL</span
-          ><span>[×] Kubernetes</span>
+          @for (option of selected(technologyOptions(), selectedTechnologyIds()); track option.id) {
+            <button type="button" (click)="toggleFilter('technology', option.id)">
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
         </p>
       </div>
-      <div>
-        <h2>Interests <span>[×]</span></h2>
-        <p><span>[×] Architecture</span><span>[×] Backend</span></p>
-      </div>
-      <div>
-        <h2>Streams</h2>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            (click)="openFilter.set(openFilter() === 'interest' ? null : 'interest')"
+          >
+            Interests <span>{{ selectedInterestIds().length ? '[-]' : '[+]' }}</span>
+          </button>
+          @if (openFilter() === 'interest') {
+            <app-ide-filter-popup
+              title="Interests"
+              [options]="interestOptions()"
+              [selectedIds]="selectedInterestIds()"
+              (toggled)="toggleFilter('interest', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
         <p>
-          <span>[×] Engineering Blogs</span><span>[×] Releases</span
-          ><span>[×] Vulnerabilities</span>
+          @for (option of selected(interestOptions(), selectedInterestIds()); track option.id) {
+            <button type="button" (click)="toggleFilter('interest', option.id)">
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            (click)="openFilter.set(openFilter() === 'stream' ? null : 'stream')"
+          >
+            Streams <small>▾</small>
+          </button>
+          @if (openFilter() === 'stream') {
+            <app-ide-filter-popup
+              title="Streams"
+              [searchable]="false"
+              [options]="streamOptions()"
+              [selectedIds]="selectedStreamKeys()"
+              (toggled)="toggleFilter('stream', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
+        <p>
+          @for (option of selected(streamOptions(), selectedStreamKeys()); track option.id) {
+            <button type="button" (click)="toggleFilter('stream', option.id)">
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
         </p>
       </div>
       <div>
         <h2>Saved</h2>
-        <p><span>[ ] Saved only · 0</span></p>
+        <p>
+          <button type="button" (click)="toggleSavedOnly()">
+            {{ savedOnly() ? '[×]' : '[ ]' }} Saved only
+          </button>
+        </p>
       </div>
       <div>
         <h2>Date <small>▾</small></h2>
@@ -55,11 +134,7 @@
         </section>
       }
     }
-    <app-date-navigation
-      [labels]="['Wed 08', 'Thu 09', 'Fri 10', 'Sat 11', 'Sun 12', 'Mon 13', 'Today']"
-      [active]="6"
-      [disabled]="true"
-    />
+    <app-date-navigation [labels]="timelineLabels" [active]="6" [disabled]="true" />
     <section class="pipeline">
       <p>Pipeline · Last 24h</p>
       <div>

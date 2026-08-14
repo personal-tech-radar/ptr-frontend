@@ -9,6 +9,7 @@ import {
   FeedbackType,
   OnboardingPayload,
   PublicFeedResponse,
+  PreviewFeedResponse,
   PublicSignal,
   SignalItem,
   TaxonomyItem,
@@ -69,16 +70,28 @@ export class FrontendApiService {
       })
       .pipe(map((value) => (Array.isArray(value) ? value : (value.data ?? []))));
   }
-  radar() {
-    return this.http.get<FeedResponse>(`${this.api}/feed`);
+  radar(
+    filters: {
+      stream?: string[];
+      technology?: string[];
+      interest?: string[];
+      saved?: boolean;
+    } = {},
+  ) {
+    let params = new HttpParams();
+    for (const value of filters.stream ?? []) params = params.append('stream', value);
+    for (const value of filters.technology ?? []) params = params.append('technology', value);
+    for (const value of filters.interest ?? []) params = params.append('interest', value);
+    if (filters.saved) params = params.set('saved', true);
+    return this.http.get<FeedResponse>(`${this.api}/feed`, { params });
   }
   publicFeed() {
     return this.http.get<PublicFeedResponse>(`${APP_CONFIG.publicApiUrl}/public/feed`, {
-      params: { page: 1, limit: 18 },
+      params: { page: 1, limit: 100 },
     });
   }
-  preview(body: object) {
-    return this.http.post<PublicFeedResponse>(`${APP_CONFIG.publicApiUrl}/feed/preview`, body);
+  preview(body: { technologyInterestIds: string[]; contentStreamIds: string[] }) {
+    return this.http.post<PreviewFeedResponse>(`${APP_CONFIG.publicApiUrl}/feed/preview`, body);
   }
   publicSignal(id: string) {
     return this.http.get<PublicSignal>(`${APP_CONFIG.publicApiUrl}/signals/${id}`);
@@ -105,5 +118,7 @@ export function publicToSignal(item: PublicSignal): SignalItem {
     shortSummary: item.summary ?? '',
     complexityLevel: (item.complexity as SignalItem['complexityLevel']) ?? null,
     materialType: item.primaryStream?.name ?? item.streams?.[0]?.name ?? null,
+    streamId: item.primaryStream?.id ?? item.streams?.[0]?.id ?? null,
+    streamName: item.primaryStream?.name ?? item.streams?.[0]?.name ?? null,
   };
 }

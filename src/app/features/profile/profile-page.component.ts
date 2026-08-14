@@ -6,12 +6,22 @@ import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, ExperienceLevel, TaxonomyItem } from '../../core/models/api.models';
 import { TaxonomySelectorComponent } from '../../shared/components/taxonomy-selector/taxonomy-selector.component';
+import {
+  FormSelectComponent,
+  FormSelectOption,
+} from '../../shared/components/form-select/form-select.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [ReactiveFormsModule, TaxonomySelectorComponent, HeaderComponent, FooterComponent],
+  imports: [
+    ReactiveFormsModule,
+    TaxonomySelectorComponent,
+    FormSelectComponent,
+    HeaderComponent,
+    FooterComponent,
+  ],
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +29,7 @@ import { FooterComponent } from '../../shared/layout/footer/footer.component';
 export class ProfilePageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(FrontendApiService);
-  private readonly auth = inject(AuthSessionService);
+  readonly auth = inject(AuthSessionService);
   private readonly router = inject(Router);
   readonly pending = signal(false);
   readonly notice = signal('');
@@ -32,6 +42,27 @@ export class ProfilePageComponent {
   readonly technologies = signal<TaxonomyItem[]>([]);
   readonly interests = signal<TaxonomyItem[]>([]);
   readonly selectedStreamIds = signal<string[]>([]);
+  readonly experienceOptions: FormSelectOption[] = [
+    { value: 'junior', label: 'Junior' },
+    { value: 'middle', label: 'Mid-level' },
+    { value: 'senior', label: 'Senior' },
+  ];
+  readonly timezoneOptions: FormSelectOption[] = [
+    'UTC',
+    'Europe/Lisbon',
+    'Europe/London',
+    'Europe/Berlin',
+    'Europe/Warsaw',
+    'Europe/Kyiv',
+    'Asia/Dubai',
+    'Asia/Tbilisi',
+    'Asia/Bangkok',
+    'Asia/Tokyo',
+    'America/New_York',
+    'America/Chicago',
+    'America/Los_Angeles',
+    'Australia/Sydney',
+  ].map((value) => ({ value, label: value }));
   readonly profile = this.fb.nonNullable.group({
     displayName: ['', [Validators.required]],
     githubUrl: [''],

@@ -45,8 +45,22 @@
   padding: 10px 12px;
   margin-bottom: 20px;
 }
-.auth-panel form > label:first-of-type + .ng-untouched {
+.auth-panel .display-name-input {
   margin-bottom: 40px;
+}
+.auth-panel .compact-input {
+  margin-bottom: 8px;
+}
+.repeat-label {
+  margin-top: 8px !important;
+}
+.registration-password {
+  margin-top: 40px;
+}
+.field-validation {
+  margin-bottom: 12px;
+  color: var(--ptr-orange);
+  font-size: 11.5px;
 }
 .password-label {
   display: flex;

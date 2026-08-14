@@ -62,6 +62,8 @@ export interface SignalItem {
   shortSummary: string;
   complexityLevel: 'beginner' | 'intermediate' | 'advanced' | null;
   materialType: string | null;
+  streamId?: string | null;
+  streamName?: string | null;
   score?: number;
   saved?: boolean;
   feedback?: FeedbackType | null;
@@ -108,6 +110,11 @@ export interface PublicFeedResponse {
 
 export interface PreviewFeedResponse {
   data: SignalItem[];
+}
+
+export interface PublicFilterOption {
+  id: string;
+  name: string;
 }
 
 export interface OnboardingPayload {

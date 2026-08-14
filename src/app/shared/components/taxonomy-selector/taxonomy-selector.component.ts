@@ -38,9 +38,12 @@ export class TaxonomySelectorComponent {
   }
   choose(item: TaxonomyItem): void {
     const current = this.selected();
-    const exists = current.some((v) => v.name.toLowerCase() === item.name.toLowerCase());
+    const exists = this.isSelected(item);
     if (exists) this.selectedChange.emit(current.filter((v) => v.name !== item.name));
     else if (current.length < this.max()) this.selectedChange.emit([...current, item]);
+  }
+  isSelected(item: TaxonomyItem): boolean {
+    return this.selected().some((value) => value.name.toLowerCase() === item.name.toLowerCase());
   }
   create(): void {
     const name = this.query().trim();
