@@ -233,9 +233,15 @@ a:hover {
 }
 
 .artwork-page {
+  display: flex;
+  flex-direction: column;
   position: relative;
   min-block-size: 100dvh;
   overflow: hidden;
+
+  > main {
+    flex: 1 0 auto;
+  }
 
   &::after {
     position: absolute;

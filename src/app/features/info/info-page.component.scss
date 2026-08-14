@@ -1,12 +1,10 @@
 .info-page {
-  min-block-size: 100vh;
-  overflow: hidden;
-  position: relative;
+  min-block-size: 100dvh;
 }
 main {
   position: relative;
   z-index: 1;
-  padding-block-start: 2.5rem;
+  padding-block: 2.5rem 8.875rem;
 }
 h1 {
   margin: 0 0 0.5rem;
@@ -37,14 +35,8 @@ p {
   line-height: 1.85;
   white-space: pre-wrap;
 }
-:host ::ng-deep app-footer footer {
-  margin-block-start: 8.875rem;
-}
 @media (max-width: 720px) {
   main {
-    padding-block-start: 2rem;
-  }
-  :host ::ng-deep app-footer footer {
-    margin-block-start: 5rem;
+    padding-block: 2rem 5rem;
   }
 }
