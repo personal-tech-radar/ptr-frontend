@@ -19,7 +19,7 @@ import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popu
 import { SignalCardComponent } from '../../shared/components/signal-card/signal-card.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 
-type FilterName = 'technology' | 'interest' | 'stream' | 'date';
+type FilterName = 'technology' | 'interest' | 'stream';
 
 @Component({
   selector: 'app-home-page',
@@ -56,25 +56,6 @@ export class HomePageComponent {
   readonly selectedDate = signal(this.dates()[29]);
   readonly timelineLabels = computed(() =>
     buildRecentDateLabels(new Date(`${this.dates()[29]}T12:00:00Z`), 30),
-  );
-  readonly dateOptions = computed<PublicFilterOption[]>(() =>
-    [...this.dates()].reverse().map((id, index) => ({
-      id,
-      name:
-        index === 0
-          ? 'Today'
-          : index === 1
-            ? 'Yesterday'
-            : new Date(`${id}T12:00:00Z`).toLocaleDateString('en-US', {
-                month: 'short',
-                day: '2-digit',
-                timeZone: 'UTC',
-              }),
-    })),
-  );
-  readonly selectedDateIds = computed(() => [this.selectedDate()]);
-  readonly selectedDateLabel = computed(
-    () => this.dateOptions().find((option) => option.id === this.selectedDate())?.name ?? 'Today',
   );
   readonly statistics = signal<PipelineStatistics | null>(null);
   readonly groups = computed(() => {
@@ -150,7 +131,7 @@ export class HomePageComponent {
     this.openFilter.update((current) => (current === filter ? null : filter));
   }
 
-  toggleSelection(kind: Exclude<FilterName, 'date'>, id: string): void {
+  toggleSelection(kind: FilterName, id: string): void {
     const target =
       kind === 'technology'
         ? this.selectedTechnologyIds
@@ -161,7 +142,7 @@ export class HomePageComponent {
     this.loadPreview();
   }
 
-  selectedOptions(kind: Exclude<FilterName, 'date'>): PublicFilterOption[] {
+  selectedOptions(kind: FilterName): PublicFilterOption[] {
     const options =
       kind === 'technology'
         ? this.technologies()

@@ -130,30 +130,6 @@
           }
         </p>
       </div>
-      <div class="filter-column">
-        <div class="filter-trigger">
-          <button
-            type="button"
-            [attr.aria-expanded]="openFilter() === 'date'"
-            (click)="toggleOpen('date')"
-          >
-            Date <small>▾</small>
-          </button>
-          @if (openFilter() === 'date') {
-            <app-ide-filter-popup
-              title="Date"
-              [searchable]="false"
-              [options]="dateOptions()"
-              [selectedIds]="selectedDateIds()"
-              (toggled)="selectDate($event)"
-              (closed)="openFilter.set(null)"
-            />
-          }
-        </div>
-        <p>
-          <strong>{{ selectedDateLabel() }}</strong>
-        </p>
-      </div>
     </div>
     @if (loading()) {
       <app-feed-skeleton />
