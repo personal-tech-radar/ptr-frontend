@@ -55,6 +55,14 @@
   color: var(--ptr-green);
   border-color: var(--ptr-green);
 }
+.detail-actions button:first-child[aria-pressed='true'] {
+  border-color: var(--ptr-green);
+  color: var(--ptr-green);
+}
+.detail-actions button:nth-child(2)[aria-pressed='true'] {
+  border-color: var(--ptr-orange);
+  color: var(--ptr-orange);
+}
 .origin {
   display: block;
   text-decoration: none;

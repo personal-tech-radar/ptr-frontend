@@ -47,6 +47,14 @@
   color: var(--ptr-green);
   border-color: var(--ptr-green);
 }
+.actions button:first-child[aria-pressed='true'] {
+  border-color: var(--ptr-green);
+  color: var(--ptr-green);
+}
+.actions button:nth-child(2)[aria-pressed='true'] {
+  border-color: var(--ptr-orange);
+  color: var(--ptr-orange);
+}
 @media (max-width: 640px) {
   .content h4 {
     font-size: 18px;
