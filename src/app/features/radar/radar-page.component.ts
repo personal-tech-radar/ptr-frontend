@@ -20,7 +20,6 @@ import {
 } from '../../shared/components/date-navigation/date-navigation.component';
 import { FooterComponent } from '../../shared/layout/footer/footer.component';
 import { HeaderComponent } from '../../shared/layout/header/header.component';
-import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popup/ide-filter-popup.component';
 
 @Component({
   selector: 'app-radar-page',
@@ -30,7 +29,6 @@ import { IdeFilterPopupComponent } from '../../shared/components/ide-filter-popu
     DateNavigationComponent,
     HeaderComponent,
     FooterComponent,
-    IdeFilterPopupComponent,
   ],
   templateUrl: './radar-page.component.html',
   styleUrl: './radar-page.component.scss',
@@ -50,28 +48,12 @@ export class RadarPageComponent {
   readonly selectedInterestIds = signal<string[]>([]);
   readonly selectedStreamKeys = signal<string[]>([]);
   readonly savedOnly = signal(false);
-  readonly openFilter = signal<'technology' | 'interest' | 'stream' | 'date' | null>(null);
   readonly statistics = signal<PipelineStatistics | null>(null);
   readonly saveConfirmations = signal<string[]>([]);
   readonly dates = signal(buildRecentDates(new Date(), 30));
   readonly selectedDate = signal(this.dates()[29]);
   readonly timelineLabels = computed(() =>
     buildRecentDateLabels(new Date(`${this.dates()[29]}T12:00:00Z`), 30),
-  );
-  readonly dateOptions = computed(() =>
-    [...this.dates()].reverse().map((id, index) => ({
-      id,
-      name:
-        index === 0
-          ? 'Today'
-          : index === 1
-            ? 'Yesterday'
-            : new Date(`${id}T12:00:00Z`).toLocaleDateString('en-US', {
-                month: 'short',
-                day: '2-digit',
-                timeZone: 'UTC',
-              }),
-    })),
   );
   readonly groups = computed(() => {
     const grouped = new Map<string, SignalItem[]>();
@@ -168,12 +150,7 @@ export class RadarPageComponent {
   }
   selectDate(index: number): void {
     this.selectedDate.set(this.dates()[index]);
-    this.openFilter.set(null);
     this.load();
-  }
-  selectDateValue(id: string): void {
-    const index = this.dates().indexOf(id);
-    if (index >= 0) this.selectDate(index);
   }
   moveDate(offset: number): void {
     const current = this.dates().indexOf(this.selectedDate());
@@ -195,24 +172,6 @@ export class RadarPageComponent {
   toggleSavedOnly(): void {
     this.savedOnly.update((value) => !value);
     this.load();
-  }
-  toggleOpen(filter: 'technology' | 'interest' | 'stream' | 'date'): void {
-    this.openFilter.update((current) => (current === filter ? null : filter));
-  }
-  selectedOptions(kind: 'technology' | 'interest' | 'stream'): PublicFilterOption[] {
-    const options =
-      kind === 'technology'
-        ? this.technologyOptions()
-        : kind === 'interest'
-          ? this.interestOptions()
-          : this.streamOptions();
-    const selected =
-      kind === 'technology'
-        ? this.selectedTechnologyIds()
-        : kind === 'interest'
-          ? this.selectedInterestIds()
-          : this.selectedStreamKeys();
-    return options.filter((option) => selected.includes(option.id));
   }
   save(item: SignalItem): void {
     if (this.pending()) return;

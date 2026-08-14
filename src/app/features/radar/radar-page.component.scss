@@ -63,24 +63,17 @@
   font-weight: 400;
   cursor: pointer;
 }
-.filters p .selected-chip,
+.filters p button.selected,
 .filters strong {
   color: var(--ptr-orange);
 }
-.filters p .selected-chip {
+.filters p button {
   max-inline-size: 100%;
   margin: 0;
   line-height: 1.45;
   overflow-wrap: anywhere;
   text-align: left;
   white-space: normal;
-}
-.filter-backdrop {
-  position: fixed;
-  z-index: 39;
-  inset: 0;
-  border: 0;
-  background: transparent;
 }
 .signal-group {
   margin-bottom: 32px;

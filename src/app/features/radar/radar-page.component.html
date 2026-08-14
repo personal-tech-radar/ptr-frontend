@@ -2,41 +2,20 @@
   <app-header [authenticated]="true" />
   <main class="container radar">
     <section class="filters">
-      @if (openFilter()) {
-        <button
-          class="filter-backdrop"
-          type="button"
-          aria-label="Close filters"
-          (click)="openFilter.set(null)"
-        ></button>
-      }
       <div class="filter-column">
         <div class="filter-trigger">
-          <button
-            type="button"
-            [attr.aria-expanded]="openFilter() === 'technology'"
-            (click)="toggleOpen('technology')"
-          >
-            Technology <small>▾</small>
+          <button type="button" title="Select or unselect all" (click)="toggleAll('technology')">
+            Technology <span>{{ selectedTechnologyIds().length ? '[-]' : '[+]' }}</span>
           </button>
-          @if (openFilter() === 'technology') {
-            <app-ide-filter-popup
-              title="Technology"
-              [options]="technologyOptions()"
-              [selectedIds]="selectedTechnologyIds()"
-              (toggled)="toggleFilter('technology', $event)"
-              (closed)="openFilter.set(null)"
-            />
-          }
         </div>
         <p>
-          @for (option of selectedOptions('technology'); track option.id) {
+          @for (option of technologyOptions(); track option.id) {
             <button
               type="button"
-              class="selected-chip"
+              [class.selected]="selectedTechnologyIds().includes(option.id)"
               (click)="toggleFilter('technology', option.id)"
             >
-              [×] {{ option.name }}
+              {{ selectedTechnologyIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -45,31 +24,18 @@
       </div>
       <div class="filter-column">
         <div class="filter-trigger">
-          <button
-            type="button"
-            [attr.aria-expanded]="openFilter() === 'interest'"
-            (click)="toggleOpen('interest')"
-          >
-            Interests <small>▾</small>
+          <button type="button" title="Select or unselect all" (click)="toggleAll('interest')">
+            Interests <span>{{ selectedInterestIds().length ? '[-]' : '[+]' }}</span>
           </button>
-          @if (openFilter() === 'interest') {
-            <app-ide-filter-popup
-              title="Interests"
-              [options]="interestOptions()"
-              [selectedIds]="selectedInterestIds()"
-              (toggled)="toggleFilter('interest', $event)"
-              (closed)="openFilter.set(null)"
-            />
-          }
         </div>
         <p>
-          @for (option of selectedOptions('interest'); track option.id) {
+          @for (option of interestOptions(); track option.id) {
             <button
               type="button"
-              class="selected-chip"
+              [class.selected]="selectedInterestIds().includes(option.id)"
               (click)="toggleFilter('interest', option.id)"
             >
-              [×] {{ option.name }}
+              {{ selectedInterestIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -77,29 +43,15 @@
         </p>
       </div>
       <div class="filter-column">
-        <div class="filter-trigger">
-          <button
-            type="button"
-            [attr.aria-expanded]="openFilter() === 'stream'"
-            (click)="toggleOpen('stream')"
-          >
-            Streams <small>▾</small>
-          </button>
-          @if (openFilter() === 'stream') {
-            <app-ide-filter-popup
-              title="Streams"
-              [searchable]="false"
-              [options]="streamOptions()"
-              [selectedIds]="selectedStreamKeys()"
-              (toggled)="toggleFilter('stream', $event)"
-              (closed)="openFilter.set(null)"
-            />
-          }
-        </div>
+        <div class="filter-trigger"><h2>Streams</h2></div>
         <p>
-          @for (option of selectedOptions('stream'); track option.id) {
-            <button type="button" class="selected-chip" (click)="toggleFilter('stream', option.id)">
-              [×] {{ option.name }}
+          @for (option of streamOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedStreamKeys().includes(option.id)"
+              (click)="toggleFilter('stream', option.id)"
+            >
+              {{ selectedStreamKeys().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
             </button>
           } @empty {
             <span>None selected</span>
@@ -115,25 +67,7 @@
         </p>
       </div>
       <div class="filter-column">
-        <div class="filter-trigger">
-          <button
-            type="button"
-            [attr.aria-expanded]="openFilter() === 'date'"
-            (click)="toggleOpen('date')"
-          >
-            Date <small>▾</small>
-          </button>
-          @if (openFilter() === 'date') {
-            <app-ide-filter-popup
-              title="Date"
-              [searchable]="false"
-              [options]="dateOptions()"
-              [selectedIds]="[selectedDate()]"
-              (toggled)="selectDateValue($event)"
-              (closed)="openFilter.set(null)"
-            />
-          }
-        </div>
+        <div class="filter-trigger"><h2>Date</h2></div>
         <p>
           <strong>{{ timelineLabels()[dates().indexOf(selectedDate())] }}</strong>
         </p>
