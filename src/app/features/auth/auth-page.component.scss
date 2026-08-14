@@ -46,7 +46,7 @@
   margin-bottom: 20px;
 }
 .auth-panel .display-name-input {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .auth-panel .compact-input {
   margin-bottom: 8px;
@@ -55,7 +55,7 @@
   margin-top: 8px !important;
 }
 .registration-password {
-  margin-top: 40px;
+  margin-top: 20px;
 }
 .field-validation {
   margin-bottom: 12px;
@@ -90,6 +90,9 @@
 .submit:disabled {
   background: #54555a;
   border-color: #54555a;
+}
+.registration-form .submit {
+  margin-top: 20px;
 }
 .account-link,
 .resend {

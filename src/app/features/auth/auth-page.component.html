@@ -43,7 +43,12 @@
             <a class="submit" routerLink="/login">Back to sign in</a>
           }
         } @else {
-          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <form
+            [class.registration-form]="mode === 'register'"
+            [formGroup]="form"
+            (ngSubmit)="submit()"
+            novalidate
+          >
             <div class="section-label">
               {{
                 mode === 'register'
