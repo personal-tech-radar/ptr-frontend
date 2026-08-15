@@ -86,6 +86,25 @@ Verification emails must link to the frontend callback, not directly to the back
 
 `http://localhost:4000/auth/verify-email?token=<verification-token>`
 
-Set the backend `APP_URL` to the public frontend origin. Its generated `/auth/verify-email?token=...` link lands on this SSR-safe frontend callback, which consumes the token through `GET /auth/verify-email`, refreshes the registered user's session state, and continues to `/onboarding`. `/verify-email?token=...` remains available as a compatibility alias.
+Set the backend `FRONT_APP_URL` to the public frontend origin. For local development it must be `http://localhost:4000`, not HTTPS, because the local SSR server does not terminate TLS. The generated `/auth/verify-email?token=...` link lands on this SSR-safe frontend callback, which consumes the token through `GET /auth/verify-email`, refreshes the registered user's session state, and continues to `/onboarding`. `/verify-email?token=...` remains available as a compatibility alias.
 
 Run `npm run smoke:registration` with the frontend, backend, and local mailbox running to verify registration, the delivered email link, onboarding continuation, and authenticated redirects in a real browser.
+
+## Continuous integration and deployment
+
+Pull requests run unit tests, ESLint, and Prettier checks on Node.js 22. The production workflow is started manually in GitHub Actions. It repeats the tests, publishes `prod` and commit-SHA Docker image tags to Docker Hub, and triggers the Dokploy deployment webhook.
+
+Add these GitHub Actions repository secrets:
+
+- `DOCKERHUB_USERNAME` — Docker Hub account used to publish the image.
+- `DOCKERHUB_TOKEN` — Docker Hub access token with permission to push the image.
+- `DOCKERHUB_IMAGE` — full Docker Hub image name, for example `personaltechradar/ptr-frontend`.
+- `DOKPLOY_WEBHOOK_URL` — private Dokploy deployment webhook invoked after the image is published.
+
+Configure these runtime environment variables in Dokploy, not as Docker build arguments:
+
+- `PTR_BACKEND_URL` — backend origin reachable from the deployed frontend container.
+- `PTR_BACKEND_API_KEY` — API key used only by the SSR server for protected public API requests.
+- `PORT` — container HTTP port; defaults to `4000` and should normally remain unchanged.
+
+The container runs the Angular Node SSR server directly and exposes port `4000`. Configure Dokploy to route the public hostname to that port. Also add the deployed hostname to `security.allowedHosts` in `angular.json` before production deployment.

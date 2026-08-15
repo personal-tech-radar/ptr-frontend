@@ -1,0 +1,18 @@
+node_modules
+dist
+.angular
+.agents
+.codex
+.design-reference
+.git
+.github
+.idea
+.vscode
+.env
+.env.*
+coverage
+reports
+Personal Tech Radar Design.zip
+*.log
+*.md
+.DS_Store
