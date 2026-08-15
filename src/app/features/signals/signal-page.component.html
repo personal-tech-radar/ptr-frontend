@@ -68,7 +68,7 @@
         rel="noopener noreferrer"
         ><div class="section-label">Go to the origin</div>
         <h2>{{ signal.title }}</h2>
-        <p>{{ detailSummary }}</p>
+        <p>{{ signal.summary || 'Read the original publication for the full source context.' }}</p>
         <span>{{ sourceName() }} →</span></a
       >
     </article>
