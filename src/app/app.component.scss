@@ -1,0 +1,24 @@
+:host {
+  min-block-size: 100dvh;
+  overflow: hidden;
+  background: var(--ptr-bg);
+}
+
+.skip-link {
+  position: fixed;
+  inset-block-start: var(--space-3);
+  inset-inline-start: var(--space-3);
+  z-index: 100;
+  padding: var(--space-2) var(--space-3);
+  background: var(--ptr-surface);
+  color: var(--ptr-text);
+  transform: translateY(-200%);
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
+main {
+  min-block-size: 100dvh;
+}

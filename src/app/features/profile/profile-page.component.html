@@ -1,0 +1,209 @@
+<div class="profile-page artwork-page">
+  <app-header
+    [authenticated]="true"
+    authenticatedActionLabel="Back to the radar"
+    authenticatedActionLink="/radar"
+  />
+  <main class="container profile">
+    <h1>Your profile</h1>
+    @if (auth.user(); as user) {
+      <div class="profile-identity">
+        <span>{{ user.displayName }}</span
+        ><span>{{ user.email }}</span>
+      </div>
+    }
+    <nav aria-label="Profile sections">
+      <button [class.active]="tab() === 'profile'" type="button" (click)="tab.set('profile')">
+        {{ tab() === 'profile' ? '[+]' : '[-]' }} Profile</button
+      ><button [class.active]="tab() === 'tech'" type="button" (click)="tab.set('tech')">
+        {{ tab() === 'tech' ? '[+]' : '[-]' }} Technologies</button
+      ><button [class.active]="tab() === 'interests'" type="button" (click)="tab.set('interests')">
+        {{ tab() === 'interests' ? '[+]' : '[-]' }} Interests</button
+      ><button [class.active]="tab() === 'streams'" type="button" (click)="tab.set('streams')">
+        {{ tab() === 'streams' ? '[+]' : '[-]' }} Streams</button
+      ><button [class.active]="tab() === 'digest'" type="button" (click)="tab.set('digest')">
+        {{ tab() === 'digest' ? '[+]' : '[-]' }} Digest</button
+      ><button [class.active]="tab() === 'security'" type="button" (click)="tab.set('security')">
+        {{ tab() === 'security' ? '[+]' : '[-]' }} Security</button
+      ><button [class.active]="tab() === 'danger'" type="button" (click)="tab.set('danger')">
+        {{ tab() === 'danger' ? '[+]' : '[-]' }} Danger Zone
+      </button>
+    </nav>
+    <section
+      class="profile-panel"
+      [class.profile-panel--critical]="tab() === 'security' || tab() === 'danger'"
+    >
+      @if (tab() === 'profile') {
+        <div class="section-label">Your profile</div>
+        <p>
+          Experience level tunes how much background each summary carries. The GitHub profile is
+          optional and seeds suggestions from the languages you already use. Timezone is prefilled
+          from your browser and decides when the daily radar closes.
+        </p>
+        <form class="form-column" [formGroup]="profile">
+          <label for="name">Display name</label
+          ><input id="name" formControlName="displayName" /><label for="github"
+            >GitHub profile <small>— optional</small></label
+          ><input id="github" formControlName="githubUrl" />
+          <app-form-select
+            label="Experience level"
+            [value]="profile.controls.level.value"
+            [options]="experienceOptions"
+            (valueChange)="profile.controls.level.setValue($any($event))"
+          />
+          <app-form-select
+            label="Timezone — detected"
+            [searchable]="true"
+            [value]="profile.controls.timezone.value"
+            [options]="timezoneOptions"
+            (valueChange)="profile.controls.timezone.setValue($event)"
+          />
+        </form>
+      }
+      @if (tab() === 'tech') {
+        <div class="section-label">Technologies</div>
+        <p>Pick the stack you actually work with — six to twelve gives the sharpest signal.</p>
+        <p>Missing something? Type it in and add it as your own technology.</p>
+        <app-taxonomy-selector
+          label="Technologies"
+          kind="technology"
+          [inline]="true"
+          placeholder="search or type your own technology..."
+          [items]="technologyItems()"
+          [selected]="technologies()"
+          (selectedChange)="technologies.set($event)"
+          (searchQuery)="search('technology', $event)"
+        />
+      }
+      @if (tab() === 'interests') {
+        <div class="section-label">Interests</div>
+        <p>
+          These decide which angle of a topic reaches you — the same release can be an architecture
+          story or a security one.
+        </p>
+        <p>Not in the list? Type it in and add it as your own interest.</p>
+        <app-taxonomy-selector
+          label="Interests"
+          kind="interest"
+          [inline]="true"
+          placeholder="search or type your own interest..."
+          [items]="interestItems()"
+          [selected]="interests()"
+          (selectedChange)="interests.set($event)"
+          (searchQuery)="search('interest', $event)"
+        />
+      }
+      @if (tab() === 'streams') {
+        <div class="section-label">Content streams</div>
+        <p>Streams group the radar into sections. Turn off anything you never read.</p>
+        <app-inline-option-selector
+          label="Content streams"
+          placeholder="search or type your own stream..."
+          [options]="streamOptions()"
+          [selectedIds]="selectedStreamIds()"
+          (toggled)="toggleStream($event)"
+        />
+      }
+      @if (tab() === 'digest') {
+        <div class="section-label">Digest</div>
+        <p>
+          The daily digest closes at the end of your day. The weekly one arrives Friday morning and
+          covers what the daily digests missed.
+        </p>
+        <p>Pick one or both — you can change the rhythm at any time.</p>
+        <app-inline-option-selector
+          label="Digest schedule"
+          placeholder="search digest schedule..."
+          [searchable]="false"
+          [showSelectionSummary]="false"
+          [options]="digestOptions"
+          [selectedIds]="selectedDigestIds()"
+          (toggled)="toggleDigest($event)"
+        />
+        @if (
+          !profile.controls.dailyDigestEnabled.value && !profile.controls.weeklyDigestEnabled.value
+        ) {
+          <p class="digest-warning">
+            ! with neither selected the radar stays on-site only — nothing is emailed to you
+          </p>
+        }
+      }
+      @if (tab() === 'security') {
+        <div class="section-label">Change password</div>
+        <p class="critical-description">
+          Update the password you use to sign in. After a successful change, every other active
+          session is signed out while this browser stays connected.
+        </p>
+        <form
+          class="form-column security-form"
+          [formGroup]="password"
+          (ngSubmit)="changePassword()"
+        >
+          <label for="current">Current password</label
+          ><input id="current" type="password" formControlName="currentPassword" /><label for="new"
+            >New password</label
+          ><input id="new" type="password" formControlName="newPassword" />
+          <label for="repeat">Repeat new password</label
+          ><input id="repeat" type="password" formControlName="repeatPassword" />
+          @if (
+            password.controls.repeatPassword.touched &&
+            password.controls.repeatPassword.value !== password.controls.newPassword.value
+          ) {
+            <span class="field-error">! passwords do not match</span>
+          }
+          @if (securityMessage()) {
+            <p class="inline-status" aria-live="polite">{{ securityMessage() }}</p>
+          }
+          <button class="save save--orange" [disabled]="pending()">Change password</button>
+        </form>
+      }
+      @if (tab() === 'danger') {
+        <div class="section-label danger-label">Delete account</div>
+        <p class="critical-description">
+          Permanently delete your profile, radar preferences, saved signals and digest settings.
+          This action cannot be undone.
+        </p>
+        @if (deleteConfirmation()) {
+          <p class="confirmation-message" aria-live="polite">
+            Are you sure you want to permanently delete the account?
+          </p>
+        }
+        @if (dangerMessage()) {
+          <p class="inline-status inline-status--error" aria-live="polite">
+            {{ dangerMessage() }}
+          </p>
+        }
+        <div class="delete-actions">
+          <button
+            class="save save--orange"
+            type="button"
+            [disabled]="pending()"
+            (click)="deleteAccount()"
+          >
+            {{ deleteConfirmation() ? 'Yes, delete my account' : 'Delete account' }}
+          </button>
+          @if (deleteConfirmation()) {
+            <button class="cancel-action" type="button" (click)="deleteConfirmation.set(false)">
+              Cancel
+            </button>
+          }
+        </div>
+      }
+    </section>
+    @if (tab() !== 'security' && tab() !== 'danger') {
+      <div class="save-row">
+        <button
+          class="save"
+          type="button"
+          [disabled]="pending()"
+          [class.save--error]="profileSaveState() === 'error'"
+          aria-live="polite"
+          (click)="save()"
+        >
+          {{ profileSaveLabel() }}
+        </button>
+      </div>
+    }
+  </main>
+  <app-footer />
+</div>

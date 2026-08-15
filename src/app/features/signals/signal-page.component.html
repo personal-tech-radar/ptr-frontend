@@ -1,0 +1,77 @@
+<div class="signal-page artwork-page">
+  <app-header
+    actionLabel="Login →"
+    actionLink="/login"
+    secondaryActionLabel="Subscribe"
+    secondaryActionLink="/register"
+  />
+  <main class="container signal-detail">
+    <article>
+      <h1>{{ signal.title }}</h1>
+      <div class="metadata">
+        <div>{{ signal.publishedAt ? signal.publishedAt.slice(0, 10) : '' }}</div>
+        @if (signal.technologies.length) {
+          <div>
+            Technologies:
+            <span>
+              @for (item of signal.technologies; track item.id; let last = $last) {
+                {{ item.name }}{{ last ? '' : ' · ' }}
+              }
+            </span>
+          </div>
+        }
+        @if (signal.interests.length) {
+          <div>
+            Interests:
+            <span>
+              @for (item of signal.interests; track item.id; let last = $last) {
+                {{ item.name }}{{ last ? '' : ' · ' }}
+              }
+            </span>
+          </div>
+        }
+      </div>
+      <div class="summary">
+        <p>{{ detailSummary }}</p>
+      </div>
+      @if (auth.authenticated()) {
+        <div class="detail-actions" aria-label="Signal actions">
+          <button
+            type="button"
+            [disabled]="pending()"
+            [attr.aria-pressed]="feedback() === 'useful'"
+            (click)="setFeedback('useful')"
+          >
+            {{ feedback() === 'useful' ? '[+]' : '[ ]' }} Useful</button
+          ><button
+            type="button"
+            [disabled]="pending()"
+            [attr.aria-pressed]="feedback() === 'not_useful'"
+            (click)="setFeedback('not_useful')"
+          >
+            {{ feedback() === 'not_useful' ? '[−]' : '[ ]' }} Not useful</button
+          ><button
+            type="button"
+            [disabled]="pending()"
+            [attr.aria-pressed]="saved()"
+            aria-live="polite"
+            (click)="toggleSave()"
+          >
+            {{ saved() ? '[×]' : '[+]' }} {{ saveLabel() }}
+          </button>
+        </div>
+      }
+      <a
+        class="origin"
+        [href]="signal.publicRedirectUrl || signal.originalUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><div class="section-label">Go to the origin</div>
+        <h2>{{ signal.title }}</h2>
+        <p>{{ detailSummary }}</p>
+        <span>{{ sourceName() }} →</span></a
+      >
+    </article>
+  </main>
+  <app-footer [divider]="false" />
+</div>

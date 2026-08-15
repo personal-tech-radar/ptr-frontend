@@ -1,0 +1,19 @@
+<header class="container site-header">
+  <div class="header-row">
+    <a class="brand" routerLink="/">Personal Tech Radar<span aria-hidden="true">_</span></a>
+    <nav aria-label="Primary navigation">
+      @if (authenticated() || session.authenticated()) {
+        <a class="adjust" [routerLink]="authenticatedActionLink()">{{
+          authenticatedActionLabel()
+        }}</a
+        ><button type="button" (click)="logout()">Logout →</button>
+      } @else if (actionLabel()) {
+        <a [routerLink]="actionLink()">{{ actionLabel() }}</a>
+        @if (secondaryActionLabel()) {
+          <a class="secondary" [routerLink]="secondaryActionLink()">{{ secondaryActionLabel() }}</a>
+        }
+      }
+    </nav>
+  </div>
+  <div class="rule"></div>
+</header>

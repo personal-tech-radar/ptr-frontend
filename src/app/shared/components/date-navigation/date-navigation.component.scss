@@ -1,0 +1,63 @@
+nav {
+  display: flex;
+  inline-size: 100%;
+  align-items: center;
+  gap: 0.125rem;
+  border: 1px solid var(--ptr-line);
+  margin-block-start: 1.5rem;
+  background: var(--ptr-surface);
+  padding: 0.875rem 1rem;
+}
+
+.days {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+button {
+  min-block-size: 0;
+  flex: 1;
+  border: 0;
+  border-block-end: 2px solid transparent;
+  background: none;
+  color: var(--ptr-muted);
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+
+  &[aria-current='date'] {
+    border-color: var(--ptr-orange);
+    color: var(--ptr-orange);
+  }
+
+  &:disabled {
+    cursor: default;
+    color: #54555a;
+  }
+}
+.arrow {
+  flex: none;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+@media (min-width: 721px) {
+  .days button:nth-last-child(n + 8) {
+    display: none;
+  }
+}
+@media (max-width: 720px) {
+  nav {
+    padding: 14px 16px;
+  }
+  .days button {
+    min-inline-size: 52px;
+    flex: none;
+    padding: 8px 6px;
+  }
+  .arrow {
+    padding-inline: 4px;
+  }
+}

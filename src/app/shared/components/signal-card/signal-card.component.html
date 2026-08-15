@@ -1,0 +1,34 @@
+<article class="signal-row">
+  <a class="content" [routerLink]="['/signals', signal().articleId]"
+    ><h4>{{ signal().title }}</h4>
+    <div class="source">{{ signal().sourceName }}</div>
+    <p>{{ signal().shortSummary }}</p></a
+  >
+  @if (actions()) {
+    <div class="actions" aria-label="Signal actions">
+      <button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().feedback === 'useful'"
+        (click)="feedback.emit('useful')"
+      >
+        {{ signal().feedback === 'useful' ? '[+]' : '[ ]' }} Useful</button
+      ><button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().feedback === 'not_useful'"
+        (click)="feedback.emit('not_useful')"
+      >
+        {{ signal().feedback === 'not_useful' ? '[−]' : '[ ]' }} Not useful</button
+      ><button
+        type="button"
+        [disabled]="pending()"
+        [attr.aria-pressed]="signal().saved"
+        aria-live="polite"
+        (click)="save.emit()"
+      >
+        {{ signal().saved ? '[×]' : '[+]' }} {{ saveLabel() }}
+      </button>
+    </div>
+  }
+</article>

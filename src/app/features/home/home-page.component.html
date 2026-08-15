@@ -1,0 +1,205 @@
+<div class="landing">
+  <header class="hero container">
+    <div class="hero-frame">
+      <h1>Personal Tech Radar<span aria-hidden="true">_</span></h1>
+      <p class="hero-lead">Stay tuned across the tech landscape.</p>
+      <p>One place for releases, engineering blogs, vulnerabilities and expert opinions.</p>
+      <p>Sign in to build your personal radar or explore today's sample.</p>
+      <a class="learn" href="#cta">Learn more →</a>
+      <div class="hero-actions">
+        <a class="action action--primary" routerLink="/login">Login</a
+        ><a class="action action--secondary" routerLink="/register">Subscribe</a>
+      </div>
+    </div>
+  </header>
+  <section id="radar" class="radar container">
+    <h2>Radar Online</h2>
+    <p>
+      This is a sample personalized radar. Technologies and interests are preselected to demonstrate
+      how your own radar will look after subscribing.
+    </p>
+    <p class="radar-strong">
+      Once you subscribe, you'll be able to add your own interests, technologies and sources.
+    </p>
+    <div class="filters">
+      @if (openFilter()) {
+        <button
+          class="filter-backdrop"
+          type="button"
+          aria-label="Close filters"
+          (click)="openFilter.set(null)"
+        ></button>
+      }
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'technology'"
+            (click)="toggleOpen('technology')"
+          >
+            Technology <small>▾</small>
+          </button>
+          @if (openFilter() === 'technology') {
+            <app-ide-filter-popup
+              title="Technology"
+              [options]="technologies()"
+              [selectedIds]="selectedTechnologyIds()"
+              (toggled)="toggleSelection('technology', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
+        <p>
+          @for (option of selectedOptions('technology'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('technology', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'interest'"
+            (click)="toggleOpen('interest')"
+          >
+            Interests <small>▾</small>
+          </button>
+          @if (openFilter() === 'interest') {
+            <app-ide-filter-popup
+              title="Interests"
+              [options]="interests()"
+              [selectedIds]="selectedInterestIds()"
+              (toggled)="toggleSelection('interest', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
+        <p>
+          @for (option of selectedOptions('interest'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('interest', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button
+            type="button"
+            [attr.aria-expanded]="openFilter() === 'stream'"
+            (click)="toggleOpen('stream')"
+          >
+            Streams <small>▾</small>
+          </button>
+          @if (openFilter() === 'stream') {
+            <app-ide-filter-popup
+              title="Streams"
+              [searchable]="false"
+              [options]="streams()"
+              [selectedIds]="selectedStreamIds()"
+              (toggled)="toggleSelection('stream', $event)"
+              (closed)="openFilter.set(null)"
+            />
+          }
+        </div>
+        <p>
+          @for (option of selectedOptions('stream'); track option.id) {
+            <button
+              type="button"
+              class="selected-chip"
+              (click)="toggleSelection('stream', option.id)"
+            >
+              [×] {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+    </div>
+    @if (loading()) {
+      <app-feed-skeleton />
+    } @else if (error()) {
+      <div class="empty">{{ error() }}</div>
+    } @else if (!signals().length) {
+      <div class="empty">No signals match your current filters.</div>
+    } @else {
+      @for (group of groups(); track group.name) {
+        <section class="signal-group">
+          <header>
+            <span>§</span>
+            <h3>{{ group.name }}</h3>
+            <i></i><small>{{ group.items.length }}</small>
+          </header>
+          @for (item of group.items; track item.articleId) {
+            <app-signal-card [signal]="item" />
+          }
+        </section>
+      }
+    }
+    <app-date-navigation
+      [labels]="timelineLabels()"
+      [active]="dates().indexOf(selectedDate())"
+      (selected)="selectDate(dates()[$event])"
+      (previous)="moveDate(-1)"
+      (next)="moveDate(1)"
+    />
+    <section class="pipeline">
+      <p>Pipeline · Last 24h</p>
+      <div>
+        <span
+          ><b>{{ statistics()?.activeSources ?? '—' }}</b> active sources</span
+        ><span
+          ><b>{{ statistics()?.articlesCollected ?? '—' }}</b> articles collected</span
+        ><span
+          ><b>{{ statistics()?.articlesAnalyzed ?? '—' }}</b> articles analyzed</span
+        ><span
+          ><b>{{ statistics()?.selectedForRadar ?? '—' }}</b> selected for your radar</span
+        >
+      </div>
+    </section>
+  </section>
+  <div class="closing">
+    <section id="cta" class="cta container">
+      <div class="cta-frame">
+        <h2>Stay tuned across the tech landscape</h2>
+        <p>
+          Modern software engineering moves too fast. New framework releases, security advisories,
+          architecture articles, RFCs, engineering blogs and community discussions appear every hour
+          across hundreds of independent sources.
+        </p>
+        <p>
+          Personal Tech Radar brings everything together into one personalized feed and one daily
+          email digest. Instead of checking dozens of websites throughout the day, you receive only
+          the signals that match your interests — organized, summarized and ready to read.
+        </p>
+        <p class="cta-strong">Build your own radar once. Stay informed every day.</p>
+        <form (submit)="$event.preventDefault(); subscribe(emailInput.value)">
+          <label class="sr-only" for="cta-email">Email</label
+          ><input
+            #emailInput
+            id="cta-email"
+            type="email"
+            required
+            placeholder="you@company.com"
+          /><button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </section>
+    <app-footer [divider]="false" />
+  </div>
+</div>

@@ -1,0 +1,33 @@
+<nav aria-label="Signal dates">
+  <button
+    class="arrow"
+    type="button"
+    [disabled]="disabled()"
+    aria-label="Previous dates"
+    (click)="previous.emit()"
+  >
+    ‹
+  </button>
+  <div class="days">
+    @for (label of labels(); track label; let index = $index) {
+      <button
+        type="button"
+        [attr.aria-disabled]="disabled()"
+        [attr.aria-current]="index === active() ? 'date' : null"
+        [disabled]="disabled()"
+        (click)="selected.emit(index)"
+      >
+        {{ label }}
+      </button>
+    }
+  </div>
+  <button
+    class="arrow"
+    type="button"
+    [disabled]="disabled() || active() === labels().length - 1"
+    aria-label="Next dates"
+    (click)="next.emit()"
+  >
+    ›
+  </button>
+</nav>

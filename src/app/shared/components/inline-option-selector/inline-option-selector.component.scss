@@ -1,0 +1,70 @@
+.selector {
+  display: grid;
+  max-inline-size: 620px;
+  margin-block-start: 20px;
+}
+input {
+  inline-size: 100%;
+  border: 1px solid var(--ptr-line);
+  background: var(--ptr-bg);
+  padding: 9px 12px;
+  color: var(--ptr-text);
+  font: inherit;
+  font-size: 12.5px;
+}
+.option-frame {
+  display: grid;
+  max-block-size: 230px;
+  overflow-y: auto;
+  border: 1px solid var(--ptr-line);
+  margin-block-start: 16px;
+  scrollbar-width: thin;
+}
+.option-frame button {
+  inline-size: 100%;
+  border: 0;
+  background: transparent;
+  padding: 7px 12px;
+  color: var(--ptr-muted);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.option-frame button:hover,
+.option-frame button:focus-visible {
+  background: var(--ptr-line);
+}
+.option-frame button[aria-selected='true'] {
+  color: var(--ptr-orange);
+}
+.option-frame p {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--ptr-muted);
+  font-size: 12px;
+}
+.selected-label {
+  margin-block-start: 18px;
+  color: var(--ptr-muted);
+  font-size: 11.5px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 8px;
+}
+.chips button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--ptr-orange);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.chips span {
+  color: var(--ptr-muted);
+  font-size: 12px;
+}

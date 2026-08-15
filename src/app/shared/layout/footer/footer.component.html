@@ -1,0 +1,18 @@
+<footer class="container">
+  @if (divider()) {
+    <div class="rule"></div>
+  }
+  <div class="links">
+    @for (page of pages$ | async; track page.id; let last = $last) {
+      <a [routerLink]="['/info', page.id]">{{ page.title }}</a>
+      @if (!last) {
+        <span>·</span>
+      }
+    }
+  </div>
+  <div class="links">
+    <a href="mailto:miter.sidorov@personalradar.dev">miter.sidorov&#64;personalradar.dev</a
+    ><span>·</span><span>GitHub</span><span>·</span><span>LinkedIn</span>
+  </div>
+  <span>© 2026 Personal Tech Radar. All rights reserved.</span>
+</footer>

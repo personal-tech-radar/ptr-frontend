@@ -1,0 +1,177 @@
+<div class="onboarding-page artwork-page">
+  <app-header actionLabel="Already have an account? Sign in" actionLink="/login" />
+  <main class="container onboarding">
+    <h1>Set up your radar</h1>
+    <div class="progress">
+      {{ '█'.repeat((step() + 1) * 4) }}{{ '░'.repeat(24 - (step() + 1) * 4) }}
+    </div>
+    <nav aria-label="Onboarding progress">
+      @for (label of steps; track label; let i = $index) {
+        <button
+          type="button"
+          [class.current]="i === step()"
+          [class.complete]="i < step()"
+          (click)="step.set(i)"
+        >
+          {{ stepMark(i) }} {{ label }}
+        </button>
+      }
+      <span>step {{ step() + 1 }} of 6</span>
+    </nav>
+    <section class="step-panel" [formGroup]="form">
+      @if (step() === 0) {
+        <div class="section-label">Your profile</div>
+        <p>
+          Experience level tunes how much background each summary carries. The GitHub profile is
+          optional and seeds suggestions from the languages you already use. Timezone is prefilled
+          from your browser and decides when the daily radar closes.
+        </p>
+        <div class="form-column">
+          <label for="github">GitHub profile <small>— optional</small></label
+          ><input id="github" formControlName="githubUrl" placeholder="github.com/username" />
+          <app-form-select
+            label="Experience level"
+            [value]="form.controls.level.value"
+            [options]="experienceOptions"
+            (valueChange)="form.controls.level.setValue($any($event))"
+          />
+          <div class="hint">{{ experienceHint() }}</div>
+          <app-form-select
+            label="Timezone — detected"
+            [searchable]="true"
+            [value]="form.controls.timezone.value"
+            [options]="timezoneOptions"
+            (valueChange)="form.controls.timezone.setValue($event)"
+          />
+        </div>
+      }
+      @if (step() === 1) {
+        <div class="section-label">Technologies</div>
+        <p>Pick the stack you actually work with — six to twelve gives the sharpest signal.</p>
+        <p>Missing something? Type it in and add it as your own technology.</p>
+        <app-taxonomy-selector
+          label="Technologies"
+          kind="technology"
+          [inline]="true"
+          placeholder="search or type your own technology..."
+          [items]="technologyItems()"
+          [selected]="technologies()"
+          (selectedChange)="technologies.set($event)"
+          (searchQuery)="search('technology', $event)"
+        />
+      }
+      @if (step() === 2) {
+        <div class="section-label">Interests</div>
+        <p>
+          These decide which angle of a topic reaches you — the same release can be an architecture
+          story or a security one.
+        </p>
+        <p>Not in the list? Type it in and add it as your own interest.</p>
+        <app-taxonomy-selector
+          label="Interests"
+          kind="interest"
+          [inline]="true"
+          placeholder="search or type your own interest..."
+          [items]="interestItems()"
+          [selected]="interests()"
+          (selectedChange)="interests.set($event)"
+          (searchQuery)="search('interest', $event)"
+        />
+      }
+      @if (step() === 3) {
+        <div class="section-label">Content streams</div>
+        <p>Streams group the radar into sections. Turn off anything you never read.</p>
+        <div class="stream-list">
+          @for (stream of streams(); track stream.id) {
+            <button
+              type="button"
+              [class.selected]="form.controls.contentStreamIds.value.includes(stream.id)"
+              (click)="toggleStream(stream.id)"
+            >
+              {{ form.controls.contentStreamIds.value.includes(stream.id) ? '[×]' : '[ ]' }}
+              {{ stream.name }}
+            </button>
+          }
+        </div>
+      }
+      @if (step() === 4) {
+        <div class="section-label">Digest</div>
+        <p>
+          The daily digest closes at the end of your day. The weekly one arrives Friday morning and
+          covers what the daily digests missed.
+        </p>
+        <p>Pick one or both — you can change the rhythm at any time.</p>
+        <div class="digest">
+          <button type="button" (click)="daily.update((v) => !v)">
+            {{ daily() ? '[×]' : '[ ]' }} Daily digest<small
+              >One email each morning with everything the radar caught.</small
+            ></button
+          ><button type="button" (click)="weekly.update((v) => !v)">
+            {{ weekly() ? '[×]' : '[ ]' }} Weekly digest<small
+              >A Friday summary of the week — lighter, more editorial.</small
+            >
+          </button>
+        </div>
+      }
+      @if (step() === 5) {
+        <div class="section-label">Review</div>
+        <p>
+          This is what your first radar will be assembled from. Everything here stays editable from
+          Adjust the radar.
+        </p>
+        <div class="review">
+          <div>
+            Experience: <span>{{ form.controls.level.value }}</span>
+          </div>
+          <div>
+            Technologies:
+            <span>
+              @for (item of technologies(); track item.name) {
+                {{ item.name }} ·
+              }
+            </span>
+          </div>
+          <div>
+            Interests:
+            <span>
+              @for (item of interests(); track item.name) {
+                {{ item.name }} ·
+              }
+            </span>
+          </div>
+          <div>
+            Streams:
+            <span>
+              @for (stream of streams(); track stream.id) {
+                @if (form.controls.contentStreamIds.value.includes(stream.id)) {
+                  {{ stream.name }} ·
+                }
+              }
+            </span>
+          </div>
+          <div>
+            Digest: <span>{{ daily() ? 'Daily' : '' }} {{ weekly() ? '· Weekly' : '' }}</span>
+          </div>
+          <div>
+            Timezone: <span>{{ form.controls.timezone.value }}</span>
+          </div>
+          <div>
+            GitHub: <span>{{ form.controls.githubUrl.value || 'not connected' }}</span>
+          </div>
+        </div>
+      }
+    </section>
+    @if (error()) {
+      <p class="form-error">! {{ error() }}</p>
+    }
+    <div class="step-actions">
+      <button class="continue" type="button" [disabled]="pending()" (click)="next()">
+        {{ step() === 5 ? 'Build my radar' : 'Continue' }}
+      </button>
+      @if (step() > 0) {
+        <button class="back" type="button" (click)="back()">← Back</button>
+      }
+    </div>
+  </main>
+  <app-footer />
+</div>

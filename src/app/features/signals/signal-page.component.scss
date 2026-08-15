@@ -1,0 +1,108 @@
+.signal-page {
+  display: flex;
+  flex-direction: column;
+}
+.signal-detail {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding-top: 40px;
+}
+.signal-detail h1 {
+  font-size: 21px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.metadata {
+  font-size: 12px;
+  line-height: 1.9;
+  margin-bottom: 24px;
+}
+.metadata > div:first-child {
+  color: var(--ptr-cyan);
+}
+.metadata span {
+  color: var(--ptr-orange);
+}
+.summary {
+  max-width: 820px;
+}
+.summary p {
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--ptr-muted);
+  white-space: pre-line;
+  margin: 0 0 28px;
+}
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  max-width: 820px;
+}
+.detail-actions button {
+  border: 1px solid var(--ptr-muted);
+  background: none;
+  color: var(--ptr-muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 8px 16px;
+  box-shadow: 3px 3px 0 var(--ptr-surface);
+  cursor: pointer;
+}
+.detail-actions button:last-child {
+  margin-left: auto;
+  color: var(--ptr-green);
+  border-color: var(--ptr-green);
+}
+.detail-actions button:first-child[aria-pressed='true'] {
+  border-color: var(--ptr-green);
+  color: var(--ptr-green);
+}
+.detail-actions button:nth-child(2)[aria-pressed='true'] {
+  border-color: var(--ptr-orange);
+  color: var(--ptr-orange);
+}
+.origin {
+  display: block;
+  text-decoration: none;
+  margin-top: 48px;
+  background: var(--ptr-surface);
+  border: 4px double var(--ptr-purple);
+  padding: 48px;
+  color: inherit;
+}
+.section-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ptr-steel);
+  margin-bottom: 16px;
+}
+.origin h2 {
+  font-size: clamp(20px, 2.4vw, 26px);
+  margin: 0 0 16px;
+}
+.origin p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--ptr-muted);
+  white-space: pre-line;
+  margin: 0 0 20px;
+}
+.origin span {
+  font-size: 13px;
+  color: var(--ptr-blue);
+}
+@media (max-width: 700px) {
+  .signal-detail {
+    padding-top: 32px;
+  }
+  .origin {
+    padding: 28px 22px;
+  }
+  .detail-actions button:last-child {
+    margin-left: 0;
+  }
+}

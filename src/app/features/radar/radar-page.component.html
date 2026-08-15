@@ -1,0 +1,122 @@
+<div class="radar-page artwork-page">
+  <app-header [authenticated]="true" />
+  <main class="container radar">
+    <section class="filters">
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button type="button" title="Select or unselect all" (click)="toggleAll('technology')">
+            Technology <span>{{ selectedTechnologyIds().length ? '[-]' : '[+]' }}</span>
+          </button>
+        </div>
+        <p>
+          @for (option of technologyOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedTechnologyIds().includes(option.id)"
+              (click)="toggleFilter('technology', option.id)"
+            >
+              {{ selectedTechnologyIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger">
+          <button type="button" title="Select or unselect all" (click)="toggleAll('interest')">
+            Interests <span>{{ selectedInterestIds().length ? '[-]' : '[+]' }}</span>
+          </button>
+        </div>
+        <p>
+          @for (option of interestOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedInterestIds().includes(option.id)"
+              (click)="toggleFilter('interest', option.id)"
+            >
+              {{ selectedInterestIds().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div class="filter-column">
+        <div class="filter-trigger"><h2>Streams</h2></div>
+        <p>
+          @for (option of streamOptions(); track option.id) {
+            <button
+              type="button"
+              [class.selected]="selectedStreamKeys().includes(option.id)"
+              (click)="toggleFilter('stream', option.id)"
+            >
+              {{ selectedStreamKeys().includes(option.id) ? '[×]' : '[ ]' }} {{ option.name }}
+            </button>
+          } @empty {
+            <span>None selected</span>
+          }
+        </p>
+      </div>
+      <div>
+        <h2>Saved</h2>
+        <p>
+          <button type="button" (click)="toggleSavedOnly()">
+            {{ savedOnly() ? '[×]' : '[ ]' }} Saved only
+          </button>
+        </p>
+      </div>
+    </section>
+    <div class="feed-stage">
+      @if (loading()) {
+        <app-feed-skeleton />
+      } @else if (error()) {
+        <div class="empty">{{ error() }}</div>
+      } @else if (!signals().length) {
+        <div class="empty">No signals match your current filters.</div>
+      } @else {
+        @for (group of groups(); track group.name) {
+          <section class="signal-group">
+            <header>
+              <span>§</span>
+              <h3>{{ group.name }}</h3>
+              <i></i><small>{{ group.items.length }}</small>
+            </header>
+            @for (item of group.items; track item.articleId) {
+              <app-signal-card
+                [signal]="item"
+                [actions]="true"
+                [pending]="pending() === item.articleId"
+                [saveConfirmed]="saveConfirmations().includes(item.articleId)"
+                (save)="save(item)"
+                (feedback)="feedback(item, $event)"
+              />
+            }
+          </section>
+        }
+      }
+    </div>
+    <app-date-navigation
+      [labels]="timelineLabels()"
+      [active]="dates().indexOf(selectedDate())"
+      (selected)="selectDate($event)"
+      (previous)="moveDate(-1)"
+      (next)="moveDate(1)"
+    />
+    <section class="pipeline">
+      <p>Pipeline · {{ statistics()?.period ?? 'Last 24h' }}</p>
+      <div>
+        <span
+          ><b>{{ statistics()?.activeSources ?? '—' }}</b> active sources</span
+        ><span
+          ><b>{{ statistics()?.articlesCollected ?? '—' }}</b> articles collected</span
+        ><span
+          ><b>{{ statistics()?.articlesAnalyzed ?? '—' }}</b> articles analyzed</span
+        ><span
+          ><b>{{ signals().length }}</b> selected for your radar</span
+        >
+      </div>
+    </section>
+  </main>
+  <app-footer />
+</div>
