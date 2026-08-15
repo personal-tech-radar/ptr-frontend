@@ -9,7 +9,11 @@ const authPage = () =>
 export const routes: Routes = [
   {
     path: '',
-    data: { index: true },
+    data: {
+      index: true,
+      description:
+        'One place for releases, engineering blogs, vulnerabilities and expert opinions.',
+    },
     canActivate: [homeGuard],
     title: 'Personal Tech Radar — useful engineering signals',
     loadComponent: () =>

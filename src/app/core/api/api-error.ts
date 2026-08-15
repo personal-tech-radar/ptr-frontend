@@ -34,6 +34,9 @@ export function mapApiError(error: unknown): AppError {
   const body = error.error as Partial<ApiErrorBody> | undefined;
   const code = body?.errorCode ? CODE_MAP[body.errorCode] : undefined;
   if (code) return { code, message: messageFor(code) };
+  if (error.status === 401 && body?.path === '/auth/login') {
+    return { code: 'invalid_credentials', message: messageFor('invalid_credentials') };
+  }
   if (error.status === 401) return { code: 'unauthorized', message: 'Your session has expired.' };
   if (error.status === 409)
     return { code: 'email_registered', message: messageFor('email_registered') };
@@ -46,7 +49,7 @@ export function mapApiError(error: unknown): AppError {
 function messageFor(code: AppErrorCode): string {
   const messages: Partial<Record<AppErrorCode, string>> = {
     email_registered: 'An account already exists for this email.',
-    invalid_credentials: 'The email or password is incorrect.',
+    invalid_credentials: 'Invalid email or password.',
     invalid_token: 'This link is invalid or has expired.',
     email_unverified: 'Confirm your email before continuing.',
     onboarding_incomplete: 'Complete onboarding to build your radar.',

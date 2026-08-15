@@ -249,7 +249,13 @@ a:hover {
     inset: auto 50% -30rem auto;
     inline-size: 118.75rem;
     block-size: 68.75rem;
-    background: url('/assets/cta-artwork-v4.png') center / cover no-repeat;
+    background-image: image-set(
+      url('/assets/cta-artwork-v4.avif') type('image/avif'),
+      url('/assets/cta-artwork-v4.png') type('image/png')
+    );
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     content: '';
     mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
     pointer-events: none;

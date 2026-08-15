@@ -17,10 +17,12 @@ export class RouteSeoService {
       let active = this.route;
       while (active.firstChild) active = active.firstChild;
       const indexable = active.snapshot.data['index'] === true;
+      const description = active.snapshot.data['description'] as string | undefined;
       this.meta.updateTag({
         name: 'robots',
         content: indexable ? 'index,follow' : 'noindex,nofollow',
       });
+      if (description) this.meta.updateTag({ name: 'description', content: description });
       let canonical = this.document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
       if (!canonical) {
         canonical = this.document.createElement('link');
