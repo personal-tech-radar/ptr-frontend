@@ -10,7 +10,9 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const angularApp = new AngularNodeAppEngine({
+  trustProxyHeaders: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto'],
+});
 const backendUrl = process.env['PTR_BACKEND_URL'] ?? 'http://127.0.0.1:3300';
 const publicApiKey = process.env['PTR_BACKEND_API_KEY'];
 

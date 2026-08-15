@@ -78,7 +78,7 @@ Access tokens live in application memory. Rotating refresh tokens are held in br
 - `/signals/:id` public SSR signal page
 - `/info/:id` public SSR information page linked from the footer
 
-SSR host validation currently allows `localhost` and `127.0.0.1`. Add each deployed public hostname to `projects.ptr-frontend.architect.build.options.security.allowedHosts` during deployment configuration; do not use a wildcard in production.
+SSR host validation allows `localhost`, `127.0.0.1`, and the production apex `personalradar.dev`. Do not use a wildcard in production.
 
 ## Email verification links
 
@@ -105,6 +105,33 @@ Configure these runtime environment variables in Dokploy, not as Docker build ar
 
 - `PTR_BACKEND_URL` — backend origin reachable from the deployed frontend container.
 - `PTR_BACKEND_API_KEY` — API key used only by the SSR server for protected public API requests.
-- `PORT` — container HTTP port; defaults to `4000` and should normally remain unchanged.
+- `PORT` — internal Angular SSR port; keep the default `4000` because Nginx proxies to it inside the container.
 
-The container runs the Angular Node SSR server directly and exposes port `4000`. Configure Dokploy to route the public hostname to that port. Also add the deployed hostname to `security.allowedHosts` in `angular.json` before production deployment.
+## Production edge and traffic filtering
+
+The production container runs Angular SSR on its internal port `4000` and Nginx on the exposed port `80`. Supervisor keeps Angular SSR, Nginx, and the daily logrotate scheduler running. Configuration is kept under `deploy/`:
+
+- `deploy/nginx` — separate main, upstream, virtual-host, and proxy-header configuration plus static-asset caching, rate limits, and common scanner-path rejection.
+- `deploy/logrotate` — daily Nginx log rotation with a 14-file retention limit and early rotation at 25 MB.
+- `deploy/fail2ban` — host-side filter, jail, and Docker firewall action for repeated scanner requests and API rate-limit violations.
+- `deploy/supervisor` — process supervision inside the container.
+
+In Dokploy, route both `personalradar.dev` and `www.personalradar.dev` through Traefik to container port `80`. Traefik exposes public ports `80` and `443` and terminates Let's Encrypt TLS. Nginx permanently redirects `www.personalradar.dev` to `https://personalradar.dev` and forwards the original scheme and client address to Angular SSR.
+
+Persist Nginx logs with a host bind mount:
+
+```text
+/var/log/personalradar/nginx:/var/log/nginx
+```
+
+Install Fail2ban on the Dokploy host, copy the supplied filter and jail into the host configuration, then reload Fail2ban:
+
+```bash
+sudo cp deploy/fail2ban/filter.d/ptr-nginx-abuse.conf /etc/fail2ban/filter.d/
+sudo cp deploy/fail2ban/jail.d/ptr-nginx.conf /etc/fail2ban/jail.d/
+sudo cp deploy/fail2ban/action.d/ptr-docker.conf /etc/fail2ban/action.d/
+sudo fail2ban-client reload
+sudo fail2ban-client status ptr-nginx-abuse
+```
+
+Fail2ban intentionally runs on the host rather than inside the application container. Host operation gives it access to the firewall without granting the frontend container `NET_ADMIN`. Its supplied action inserts bans into Docker's `DOCKER-USER` chain, which sees traffic before it reaches Traefik. The Nginx real-IP configuration trusts only loopback and private Docker networks, allowing Fail2ban to identify Traefik's forwarded client address in the access log.
