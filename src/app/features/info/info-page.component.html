@@ -1,8 +1,8 @@
 <div class="info-page artwork-page">
   <app-header [authenticated]="false" actionLabel="← Back to today's radar" actionLink="/" />
   <main class="container">
-    <h1>{{ page.title }}</h1>
-    <div class="updated">Last updated · {{ page.updatedAt | date: 'dd MMM yyyy' }}</div>
+    <h1>{{ page().title }}</h1>
+    <div class="updated">Last updated · {{ page().updatedAt | date: 'dd MMM yyyy' }}</div>
     <article>
       @for (block of blocks(); track $index) {
         @if (block.type === 'heading' && block.data.level !== 1) {

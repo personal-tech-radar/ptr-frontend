@@ -23,4 +23,30 @@ describe('FrontendApiService feedback', () => {
     await response;
     http.verify();
   });
+
+  it('uses the live password recovery endpoints and reset payload', async () => {
+    TestBed.configureTestingModule({
+      providers: [FrontendApiService, provideHttpClient(), provideHttpClientTesting()],
+    });
+    const api = TestBed.inject(FrontendApiService);
+    const http = TestBed.inject(HttpTestingController);
+
+    const forgotResponse = firstValueFrom(api.forgotPassword('jane@example.com'));
+    const forgotRequest = http.expectOne('/api/backend/auth/password/forgot');
+    expect(forgotRequest.request.method).toBe('POST');
+    expect(forgotRequest.request.body).toEqual({ email: 'jane@example.com' });
+    forgotRequest.flush({ message: 'If the email exists, a reset link has been sent' });
+    await forgotResponse;
+
+    const resetResponse = firstValueFrom(api.resetPassword('reset-token', 'new-password'));
+    const resetRequest = http.expectOne('/api/backend/auth/password/reset');
+    expect(resetRequest.request.method).toBe('POST');
+    expect(resetRequest.request.body).toEqual({
+      token: 'reset-token',
+      newPassword: 'new-password',
+    });
+    resetRequest.flush({ message: 'Password reset' });
+    await resetResponse;
+    http.verify();
+  });
 });

@@ -37,10 +37,10 @@ export class FrontendApiService {
     return this.http.get<void>(`${this.api}/auth/verify-email`, { params: { token } });
   }
   forgotPassword(email: string) {
-    return this.http.post<void>(`${this.api}/auth/forgot-password`, { email });
+    return this.http.post<void>(`${this.api}/auth/password/forgot`, { email });
   }
   resetPassword(token: string, newPassword: string) {
-    return this.http.post<void>(`${this.api}/auth/reset-password`, { token, newPassword });
+    return this.http.post<void>(`${this.api}/auth/password/reset`, { token, newPassword });
   }
   changePassword(currentPassword: string, newPassword: string) {
     return this.http.post<void>(`${this.api}/auth/change-password`, {
