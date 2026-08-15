@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { finalize, forkJoin, map, switchMap } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs';
 import { FrontendApiService } from '../../core/api/frontend-api.service';
 import { AuthSessionService } from '../../core/auth/auth-session.service';
 import { ContentStream, ExperienceLevel, TaxonomyItem } from '../../core/models/api.models';
@@ -111,22 +111,33 @@ export class ProfilePageComponent {
       },
       error: () => undefined,
     });
-    forkJoin({
-      streams: this.api.streams(),
-      taxonomy: this.api.userTaxonomy(),
-      technologies: this.api.taxonomy('technology'),
-      interests: this.api.taxonomy('interest'),
-    }).subscribe({
-      next: ({ streams, taxonomy, technologies, interests }) => {
-        this.streams.set(streams);
-        this.technologies.set(taxonomy.technologyInterests.filter((v) => v.kind === 'technology'));
-        this.interests.set(taxonomy.technologyInterests.filter((v) => v.kind === 'interest'));
-        this.selectedStreamIds.set(taxonomy.contentStreams.map((v) => v.id));
-        this.technologyItems.set(technologies);
-        this.interestItems.set(interests);
-      },
+    this.api.streams().subscribe({
+      next: (streams) => this.streams.set(streams),
       error: () => undefined,
     });
+    this.loadSelectedTaxonomy();
+    this.api.taxonomy('technology').subscribe({
+      next: (items) => this.technologyItems.set(items),
+      error: () => undefined,
+    });
+    this.api.taxonomy('interest').subscribe({
+      next: (items) => this.interestItems.set(items),
+      error: () => undefined,
+    });
+  }
+  private loadSelectedTaxonomy(): void {
+    this.api.userTaxonomy().subscribe({
+      next: (taxonomy) => this.applySelectedTaxonomy(taxonomy),
+      error: () => undefined,
+    });
+  }
+  private applySelectedTaxonomy(taxonomy: {
+    technologyInterests: TaxonomyItem[];
+    contentStreams: ContentStream[];
+  }): void {
+    this.technologies.set(taxonomy.technologyInterests.filter((v) => v.kind === 'technology'));
+    this.interests.set(taxonomy.technologyInterests.filter((v) => v.kind === 'interest'));
+    this.selectedStreamIds.set(taxonomy.contentStreams.map((v) => v.id));
   }
   toggleStream(id: string): void {
     this.selectedStreamIds.update((values) =>
@@ -161,25 +172,25 @@ export class ProfilePageComponent {
     this.api
       .updateMe({ ...v, level: v.level as ExperienceLevel, githubUrl: v.githubUrl || null })
       .pipe(
-        switchMap((user) =>
-          this.api
-            .onboarding({
-              timezone: v.timezone,
-              githubUrl: v.githubUrl || null,
-              level: v.level as ExperienceLevel,
-              contentStreamIds: this.selectedStreamIds(),
-              technologyInterests: [...this.technologies(), ...this.interests()].map((item) => ({
-                kind: item.kind,
-                name: item.name,
-              })),
-            })
-            .pipe(map(() => user)),
+        switchMap(() =>
+          this.api.onboarding({
+            timezone: v.timezone,
+            githubUrl: v.githubUrl || null,
+            level: v.level as ExperienceLevel,
+            contentStreamIds: this.selectedStreamIds(),
+            technologyInterests: [...this.technologies(), ...this.interests()].map((item) => ({
+              kind: item.kind,
+              name: item.name,
+            })),
+          }),
         ),
+        switchMap((user) => this.api.userTaxonomy().pipe(map((taxonomy) => ({ user, taxonomy })))),
         finalize(() => this.pending.set(false)),
       )
       .subscribe({
-        next: (u) => {
-          this.auth.updateUser(u);
+        next: ({ user, taxonomy }) => {
+          this.auth.updateUser(user);
+          this.applySelectedTaxonomy(taxonomy);
           this.profileSaveState.set('saved');
         },
         error: () => this.profileSaveState.set('error'),
